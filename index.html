@@ -3,72 +3,133 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="manifest" href="manifest.json">
     <title>Watch CircuitoApp</title>
     <style>
-        /* RESET PARA RELOJ */
+        /* RESET TOTAL PARA EVITAR DEFORMACIONES */
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body { 
             background-color: #000; 
             color: #fff; 
-            font-family: Arial, sans-serif; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
+            width: 100vw;
             overflow: hidden; 
         }
 
-        /* CONTENEDOR CIRCULAR (SAFE AREA) */
+        /* CONTENEDOR CIRCULAR RESPONSIVO (PERFECTO EN CUALQUIER PANTALLA) */
         .watch-face {
-            width: 450px;
-            height: 450px;
+            /* Usamos vmin para que siempre sea un cuadrado perfecto basado en el lado más corto */
+            width: 95vmin; 
+            height: 95vmin;
             border-radius: 50%;
             border: 2px solid #1e5fa8; /* Bisel Cian Circuito */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: 10%; /* Padding porcentual para que escale */
             text-align: center;
             position: relative;
+            background: radial-gradient(circle, #04081a 0%, #000 100%);
+            box-shadow: inset 0 0 30px rgba(30, 95, 168, 0.3);
         }
 
+        /* EFECTO DE RESPLANDOR DE ESTADO */
         .status-glow {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             border-radius: 50%;
             box-shadow: inset 0 0 20px rgba(30, 95, 168, 0.5);
             pointer-events: none;
+            animation: pulse 3s infinite;
         }
 
-        h1 { font-size: 24px; color: #7ec8f5; margin-bottom: 10px; }
-        p { font-size: 16px; color: #daffde; line-height: 1.4; }
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        h1 { 
+            font-size: 5vmin; /* Escala con el círculo */
+            color: #7ec8f5; 
+            margin-bottom: 5%; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p { 
+            font-size: 3.5vmin; /* Escala con el círculo */
+            color: #daffde; 
+            line-height: 1.4;
+            max-width: 80%;
+        }
 
         .btn-check {
-            margin-top: 20px;
-            padding: 15px 30px;
+            margin-top: 8%;
+            padding: 4% 10%;
             background: linear-gradient(180deg, #1e5fa8, #0a3d7a);
-            border: none;
-            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
             color: white;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 4vmin; /* Escala con el círculo */
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+
+        .btn-check:active {
+            transform: scale(0.95);
+            background: #0a3d7a;
+        }
+
+        /* AJUSTE PARA PANTALLAS NO CIRCULARES (CELULAR) */
+        @media (orientation: portrait) and (min-width: 500px) {
+            .watch-face {
+                width: 350px;
+                height: 350px;
+            }
+            h1 { font-size: 24px; }
+            p { font-size: 16px; }
+            .btn-check { font-size: 18px; }
         }
     </style>
 </head>
 <body>
     <div class="watch-face">
         <div class="status-glow"></div>
-        <h1>Fase 2: Conectado</h1>
-        <p>Si ves este círculo en tu Watch 7, la arquitectura es correcta.</p>
-        <button class="btn-check" onclick="alert('¡Sincronizado!')">Tildar Tarea</button>
+        <h1 id="clock">00:00</h1>
+        <p>Ecosistema Benjamín<br><b>Fase 2: OK</b></p>
+        <button class="btn-check" onclick="vibrate()">Tildar Tarea</button>
     </div>
 
     <script>
-        // Registro del Service Worker para funcionamiento Offline
+        // Reloj en tiempo real
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${h}:${m}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Función de vibración para feedback táctil
+        function vibrate() {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            console.log("Tarea tildada");
+        }
+
+        // Registro del Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js');
         }
