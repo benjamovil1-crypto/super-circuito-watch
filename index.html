@@ -1,105 +1,225 @@
-```react
-import React, { useState, useEffect } from 'react';
-import { Bell, Heart, AlertTriangle, CheckCircle2, Circle, Clock } from 'lucide-react';
-
-const App = () => {
-  const [time, setTime] = useState(new Date());
-  const [activeTab, setActiveTab] = useState('flow'); // 'flow' o 'health'
-  
-  // Datos de ejemplo para el flujo de trabajo (luego vendrán del teléfono)
-  const [tasks, setTasks] = useState([
-    { id: 1, time: '09:00', title: 'Reunión Precursores', type: 'precursor', done: true },
-    { id: 2, time: '11:00', title: 'Salida Campo', type: 'visit', done: false },
-    { id: 3, time: '18:00', title: 'Pastoreo Familia Glez', type: 'pastoreo', done: false },
-    { id: 4, time: '19:30', title: 'Reunión Vida y Min.', type: 'meeting', done: false },
-  ]);
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const toggleTask = (id) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
-    if (navigator.vibrate) navigator.vibrate(40);
-  };
-
-  const getBorderColor = (type) => {
-    switch(type) {
-      case 'precursor': return '#ffd060'; // Orange
-      case 'visit': return '#5ce875'; // Green
-      case 'meeting': return '#7ec8f5'; // Cyan
-      case 'pastoreo': return '#c084fc'; // Purple
-      default: return '#1e5fa8';
-    }
-  };
-
-  return (
-    <div className="flex items-center justify-center h-screen w-screen bg-black overflow-hidden font-sans select-none">
-      
-      {/* Marco Circular del Reloj */}
-      <div className="relative flex flex-col items-center justify-between w-[96vmin] h-[96vmin] rounded-full border-2 border-blue-900/30 p-8 text-center bg-radial-gradient from-[#04081a] to-black shadow-inner">
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="manifest.json">
+    <title>Super CircuitoApp - Watch Edition</title>
+    <style>
+        /* ESTILO BASE VISTA EDITION */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        {/* Glow de Estado (Refleja la siguiente tarea o salud) */}
-        <div className="absolute inset-0 rounded-full shadow-[inset_0_0_25px_rgba(30,95,168,0.3)] animate-pulse pointer-events-none" />
+        body { 
+            background-color: #000; 
+            color: #e8f2ff; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden;
+            user-select: none;
+        }
 
-        {/* HEADER: Reloj y Estado de Salud (Super Asistente 360) */}
-        <div className="z-10 mt-2">
-          <div className="text-[6vmin] font-bold text-blue-200 tracking-widest">
-            {time.getHours().toString().padStart(2, '0')}:{time.getMinutes().toString().padStart(2, '0')}
-          </div>
-          <div className="flex items-center justify-center gap-1 text-[3vmin] text-green-400 font-medium">
-            <Heart size={10} fill="currentColor" /> 72 BPM · OK
-          </div>
+        /* CONTENEDOR CIRCULAR */
+        .watch-face {
+            width: 98vmin;
+            height: 98vmin;
+            border-radius: 50%;
+            border: 2px solid rgba(30, 95, 168, 0.3);
+            background: radial-gradient(circle at center, #04081a 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12% 10% 10% 10%;
+            position: relative;
+            box-shadow: inset 0 0 30px rgba(30, 95, 168, 0.2);
+        }
+
+        /* HEADER: RELOJ Y SALUD */
+        .header { z-index: 10; text-align: center; }
+        #clock { font-size: 8vmin; font-weight: 700; color: #7ec8f5; letter-spacing: 2px; line-height: 1; }
+        .health-status { font-size: 3.2vmin; color: #5ce875; display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px; }
+
+        /* LISTA DE TAREAS (FLUJO DE TRABAJO) */
+        .task-list {
+            flex: 1;
+            width: 100%;
+            overflow-y: auto;
+            margin: 5% 0;
+            padding: 0 5%;
+            z-index: 10;
+            scrollbar-width: none;
+        }
+        .task-list::-webkit-scrollbar { display: none; }
+
+        .task-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #1e5fa8;
+            transition: all 0.3s ease;
+        }
+
+        .task-item.done { opacity: 0.35; background: rgba(255, 255, 255, 0.03); }
+        .task-item.done .task-title { text-decoration: line-through; }
+
+        .checkbox { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #555; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .task-item.done .checkbox { background: #5ce875; border-color: #5ce875; }
+        .task-item.done .checkbox::after { content: '✓'; color: #000; font-size: 12px; font-weight: bold; }
+
+        .task-info { text-align: left; overflow: hidden; }
+        .task-time { font-size: 2.8vmin; color: #7ec8f5; opacity: 0.7; font-family: monospace; }
+        .task-title { font-size: 3.6vmin; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+
+        /* FOOTER: SOS Y ACCIÓN */
+        .footer { z-index: 10; display: flex; gap: 10px; margin-bottom: 5%; }
+        
+        .btn-sos {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(255, 60, 60, 0.15);
+            border: 1px solid rgba(255, 60, 60, 0.4);
+            color: #ff6060; font-size: 20px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+
+        .btn-next {
+            padding: 0 20px; height: 50px; border-radius: 25px;
+            background: rgba(30, 95, 168, 0.3);
+            border: 1px solid rgba(126, 200, 245, 0.4);
+            color: #7ec8f5; font-weight: bold; font-size: 3.5vmin;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+
+        /* RESPLANDOR DISCRETO */
+        .glow {
+            position: absolute; inset: 0; border-radius: 50%;
+            box-shadow: inset 0 0 25px rgba(30, 95, 168, 0.3);
+            pointer-events: none; animation: pulse 4s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+
+        .label-top { position: absolute; top: 4%; font-size: 2.5vmin; color: rgba(126, 200, 245, 0.2); font-weight: bold; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="watch-face">
+        <div class="glow"></div>
+        <div class="label-top">MODO VISITA</div>
+
+        <!-- HEADER -->
+        <div class="header">
+            <div id="clock">00:00</div>
+            <div class="health-status">
+                <span style="font-size: 12px;">❤</span> <span id="bpm">72</span> BPM · OK
+            </div>
         </div>
 
-        {/* CONTENIDO CENTRAL: Lista de Tareas (Flujo de Trabajo) */}
-        <div className="z-10 flex-1 w-full overflow-y-auto my-2 px-4 scrollbar-hide">
-          <div className="flex flex-col gap-2">
-            {tasks.map(task => (
-              <div 
-                key={task.id}
-                onClick={() => toggleTask(task.id)}
-                className={`flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 ${task.done ? 'bg-white/5 opacity-40' : 'bg-white/10'}`}
-                style={{ borderLeft: `4px solid ${getBorderColor(task.type)}` }}
-              >
-                <div className="flex-shrink-0">
-                  {task.done ? <CheckCircle2 size={16} className="text-green-500" /> : <Circle size={16} className="text-gray-500" />}
-                </div>
-                <div className="text-left overflow-hidden">
-                  <div className="text-[2.5vmin] text-blue-300/70 font-mono">{task.time}</div>
-                  <div className={`text-[3.2vmin] font-semibold truncate ${task.done ? 'line-through' : 'text-white'}`}>
-                    {task.title}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <!-- FLUJO DE TRABAJO -->
+        <div class="task-list" id="taskList">
+            <!-- Las tareas se cargan por JS -->
         </div>
 
-        {/* FOOTER: Botones de Acción Rápida */}
-        <div className="z-10 mb-4 flex gap-4">
-          {/* Botón SOS Crisis (Super Asistente 360) */}
-          <button 
-            className="flex items-center justify-center w-12 h-12 rounded-full bg-red-900/40 border border-red-500/50 text-red-500 active:scale-90 transition-transform"
-            onClick={() => {
-              if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-              alert("Protocolo de Crisis activado. Esperanza ha sido notificada.");
-            }}
-          >
-            <AlertTriangle size={20} />
-          </button>
-
-          {/* Botón de Próxima Cita (Vista Rápida) */}
-          <button 
-            className="flex items-center justify-center px-4 h-12 rounded-full bg-blue-900/40 border border-blue-500/50 text-blue-200 text-[3vmin] font-bold active:scale-90 transition-transform"
-            onClick={() => alert("Próxima: " + tasks.find(t => !t.done)?.title)}
-          >
-            SIGUIENTE
-          </button>
+        <!-- FOOTER -->
+        <div class="footer">
+            <button class="btn-sos" onclick="triggerSOS()">⚠</button>
+            <button class="btn-next" onclick="showNext()">SIGUIENTE</button>
         </div>
+    </div>
 
-        {/* Indicador de Posición Discreta (Solo visible al mirar abajo) */}
+    <script>
+        // DATOS INICIALES (Sincronizados con tus colores)
+        let tasks = [
+            { id: 1, time: '09:00', title: 'Cita Precursores', type: 'precursor', done: true },
+            { id: 2, time: '11:00', title: 'Salida al Campo', type: 'visit', done: false },
+            { id: 3, time: '18:00', title: 'Pastoreo Fam. Glez', type: 'pastoreo', done: false },
+            { id: 4, time: '19:30', title: 'Reunión Vida y Min.', type: 'meeting', done: false }
+        ];
+
+        function getTaskColor(type) {
+            const colors = {
+                'precursor': '#ffd060', // Orange
+                'visit': '#5ce875',     // Green
+                'meeting': '#7ec8f5',   // Cyan
+                'pastoreo': '#c084fc'    // Purple
+            };
+            return colors[type] || '#1e5fa8';
+        }
+
+        // RENDERIZAR LISTA
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            tasks.forEach(task => {
+                const item = document.createElement('div');
+                item.className = `task-item ${task.done ? 'done' : ''}`;
+                item.style.borderLeftColor = getTaskColor(task.type);
+                item.onclick = () => toggleTask(task.id);
+                
+                item.innerHTML = `
+                    <div class="checkbox"></div>
+                    <div class="task-info">
+                        <div class="task-time">${task.time}</div>
+                        <div class="task-title">${task.title}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.done = !task.done;
+                if (navigator.vibrate) navigator.vibrate(40);
+                renderTasks();
+            }
+        }
+
+        function triggerSOS() {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            alert("Crisis: Esperanza notificada");
+        }
+
+        function showNext() {
+            const next = tasks.find(t => !t.done);
+            alert(next ? "Siguiente: " + next.title : "¡Día completado!");
+        }
+
+        // RELOJ Y BPM SIMULADO
+        function updateUI() {
+            const now = new Date();
+            document.getElementById('clock').innerText = 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            
+            // Simular pulso variable (Super Asistente 360)
+            document.getElementById('bpm').innerText = 70 + Math.floor(Math.random() * 5);
+        }
+
+        setInterval(updateUI, 1000);
+        updateUI();
+        renderTasks();
+
+        // SERVICE WORKER
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+</html>
+
+```
         <div className="absolute top-2 text-[2.5vmin] text-blue-400/30 font-bold uppercase tracking-widest">
           Modo Visita
         </div>
