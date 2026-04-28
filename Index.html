@@ -1,0 +1,79 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <title>Watch CircuitoApp</title>
+    <style>
+        /* RESET PARA RELOJ */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: #000; 
+            color: #fff; 
+            font-family: Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* CONTENEDOR CIRCULAR (SAFE AREA) */
+        .watch-face {
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            border: 2px solid #1e5fa8; /* Bisel Cian Circuito */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .status-glow {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            box-shadow: inset 0 0 20px rgba(30, 95, 168, 0.5);
+            pointer-events: none;
+        }
+
+        h1 { font-size: 24px; color: #7ec8f5; margin-bottom: 10px; }
+        p { font-size: 16px; color: #daffde; line-height: 1.4; }
+
+        .btn-check {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(180deg, #1e5fa8, #0a3d7a);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="watch-face">
+        <div class="status-glow"></div>
+        <h1>Fase 2: Conectado</h1>
+        <p>Si ves este círculo en tu Watch 7, la arquitectura es correcta.</p>
+        <button class="btn-check" onclick="alert('¡Sincronizado!')">Tildar Tarea</button>
+    </div>
+
+    <script>
+        // Registro del Service Worker para funcionamiento Offline
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+</html>
+
+```
