@@ -1,21 +1,26 @@
+```json
 {
-  "name": "Super CircuitoApp Watch",
+  "name": "Super CircuitoApp",
   "short_name": "CircuitoApp",
-  "description": "Gestión de Circuito y Asistente 360 para Watch",
+  "description": "Gestión de Circuito y Salud para Benjamín",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#020617",
+  "background_color": "#000000",
   "theme_color": "#1e5fa8",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
+
+```
