@@ -1,140 +1,118 @@
-```html
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <link rel="manifest" href="manifest.json">
-    <title>Watch CircuitoApp</title>
-    <style>
-        /* RESET TOTAL PARA EVITAR DEFORMACIONES */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+```react
+import React, { useState, useEffect } from 'react';
+import { Bell, Heart, AlertTriangle, CheckCircle2, Circle, Clock } from 'lucide-react';
+
+const App = () => {
+  const [time, setTime] = useState(new Date());
+  const [activeTab, setActiveTab] = useState('flow'); // 'flow' o 'health'
+  
+  // Datos de ejemplo para el flujo de trabajo (luego vendrán del teléfono)
+  const [tasks, setTasks] = useState([
+    { id: 1, time: '09:00', title: 'Reunión Precursores', type: 'precursor', done: true },
+    { id: 2, time: '11:00', title: 'Salida Campo', type: 'visit', done: false },
+    { id: 3, time: '18:00', title: 'Pastoreo Familia Glez', type: 'pastoreo', done: false },
+    { id: 4, time: '19:30', title: 'Reunión Vida y Min.', type: 'meeting', done: false },
+  ]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const toggleTask = (id) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
+    if (navigator.vibrate) navigator.vibrate(40);
+  };
+
+  const getBorderColor = (type) => {
+    switch(type) {
+      case 'precursor': return '#ffd060'; // Orange
+      case 'visit': return '#5ce875'; // Green
+      case 'meeting': return '#7ec8f5'; // Cyan
+      case 'pastoreo': return '#c084fc'; // Purple
+      default: return '#1e5fa8';
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center h-screen w-screen bg-black overflow-hidden font-sans select-none">
+      
+      {/* Marco Circular del Reloj */}
+      <div className="relative flex flex-col items-center justify-between w-[96vmin] h-[96vmin] rounded-full border-2 border-blue-900/30 p-8 text-center bg-radial-gradient from-[#04081a] to-black shadow-inner">
         
-        body { 
-            background-color: #000; 
-            color: #fff; 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            width: 100vw;
-            overflow: hidden; 
-        }
+        {/* Glow de Estado (Refleja la siguiente tarea o salud) */}
+        <div className="absolute inset-0 rounded-full shadow-[inset_0_0_25px_rgba(30,95,168,0.3)] animate-pulse pointer-events-none" />
 
-        /* CONTENEDOR CIRCULAR RESPONSIVO (PERFECTO EN CUALQUIER PANTALLA) */
-        .watch-face {
-            /* Usamos vmin para que siempre sea un cuadrado perfecto basado en el lado más corto */
-            width: 95vmin; 
-            height: 95vmin;
-            border-radius: 50%;
-            border: 2px solid #1e5fa8; /* Bisel Cian Circuito */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10%; /* Padding porcentual para que escale */
-            text-align: center;
-            position: relative;
-            background: radial-gradient(circle, #04081a 0%, #000 100%);
-            box-shadow: inset 0 0 30px rgba(30, 95, 168, 0.3);
-        }
+        {/* HEADER: Reloj y Estado de Salud (Super Asistente 360) */}
+        <div className="z-10 mt-2">
+          <div className="text-[6vmin] font-bold text-blue-200 tracking-widest">
+            {time.getHours().toString().padStart(2, '0')}:{time.getMinutes().toString().padStart(2, '0')}
+          </div>
+          <div className="flex items-center justify-center gap-1 text-[3vmin] text-green-400 font-medium">
+            <Heart size={10} fill="currentColor" /> 72 BPM · OK
+          </div>
+        </div>
 
-        /* EFECTO DE RESPLANDOR DE ESTADO */
-        .status-glow {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: 50%;
-            box-shadow: inset 0 0 20px rgba(30, 95, 168, 0.5);
-            pointer-events: none;
-            animation: pulse 3s infinite;
-        }
+        {/* CONTENIDO CENTRAL: Lista de Tareas (Flujo de Trabajo) */}
+        <div className="z-10 flex-1 w-full overflow-y-auto my-2 px-4 scrollbar-hide">
+          <div className="flex flex-col gap-2">
+            {tasks.map(task => (
+              <div 
+                key={task.id}
+                onClick={() => toggleTask(task.id)}
+                className={`flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 ${task.done ? 'bg-white/5 opacity-40' : 'bg-white/10'}`}
+                style={{ borderLeft: `4px solid ${getBorderColor(task.type)}` }}
+              >
+                <div className="flex-shrink-0">
+                  {task.done ? <CheckCircle2 size={16} className="text-green-500" /> : <Circle size={16} className="text-gray-500" />}
+                </div>
+                <div className="text-left overflow-hidden">
+                  <div className="text-[2.5vmin] text-blue-300/70 font-mono">{task.time}</div>
+                  <div className={`text-[3.2vmin] font-semibold truncate ${task.done ? 'line-through' : 'text-white'}`}>
+                    {task.title}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
+        {/* FOOTER: Botones de Acción Rápida */}
+        <div className="z-10 mb-4 flex gap-4">
+          {/* Botón SOS Crisis (Super Asistente 360) */}
+          <button 
+            className="flex items-center justify-center w-12 h-12 rounded-full bg-red-900/40 border border-red-500/50 text-red-500 active:scale-90 transition-transform"
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+              alert("Protocolo de Crisis activado. Esperanza ha sido notificada.");
+            }}
+          >
+            <AlertTriangle size={20} />
+          </button>
 
-        h1 { 
-            font-size: 5vmin; /* Escala con el círculo */
-            color: #7ec8f5; 
-            margin-bottom: 5%; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+          {/* Botón de Próxima Cita (Vista Rápida) */}
+          <button 
+            className="flex items-center justify-center px-4 h-12 rounded-full bg-blue-900/40 border border-blue-500/50 text-blue-200 text-[3vmin] font-bold active:scale-90 transition-transform"
+            onClick={() => alert("Próxima: " + tasks.find(t => !t.done)?.title)}
+          >
+            SIGUIENTE
+          </button>
+        </div>
 
-        p { 
-            font-size: 3.5vmin; /* Escala con el círculo */
-            color: #daffde; 
-            line-height: 1.4;
-            max-width: 80%;
-        }
+        {/* Indicador de Posición Discreta (Solo visible al mirar abajo) */}
+        <div className="absolute top-2 text-[2.5vmin] text-blue-400/30 font-bold uppercase tracking-widest">
+          Modo Visita
+        </div>
+      </div>
 
-        .btn-check {
-            margin-top: 8%;
-            padding: 4% 10%;
-            background: linear-gradient(180deg, #1e5fa8, #0a3d7a);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 50px;
-            color: white;
-            font-weight: bold;
-            font-size: 4vmin; /* Escala con el círculo */
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            transition: transform 0.1s;
-        }
-
-        .btn-check:active {
-            transform: scale(0.95);
-            background: #0a3d7a;
-        }
-
-        /* AJUSTE PARA PANTALLAS NO CIRCULARES (CELULAR) */
-        @media (orientation: portrait) and (min-width: 500px) {
-            .watch-face {
-                width: 350px;
-                height: 350px;
-            }
-            h1 { font-size: 24px; }
-            p { font-size: 16px; }
-            .btn-check { font-size: 18px; }
-        }
-    </style>
-</head>
-<body>
-    <div class="watch-face">
-        <div class="status-glow"></div>
-        <h1 id="clock">00:00</h1>
-        <p>Ecosistema Benjamín<br><b>Fase 2: OK</b></p>
-        <button class="btn-check" onclick="vibrate()">Tildar Tarea</button>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .bg-radial-gradient { background: radial-gradient(circle at center, var(--tw-gradient-from), var(--tw-gradient-to)); }
+      `}} />
     </div>
+  );
+};
 
-    <script>
-        // Reloj en tiempo real
-        function updateClock() {
-            const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('clock').innerText = `${h}:${m}`;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // Función de vibración para feedback táctil
-        function vibrate() {
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
-            }
-            console.log("Tarea tildada");
-        }
-
-        // Registro del Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js');
-        }
-    </script>
-</body>
-</html>
+export default App;
 
 ```
