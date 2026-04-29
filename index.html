@@ -309,6 +309,172 @@
 </html>
 
 ```
+                </div>
+            </div>
+            <div class="footer">
+                <button class="btn-tool" onclick="switchView('view-home')">✕</button>
+            </div>
+        </div>
+
+        <!-- VISTA SALUD DETALLADA -->
+        <div id="view-health" class="view">
+            <div style="font-size: 4vmin; color: var(--green); font-weight: bold; margin-bottom: 5px;">ASISTENTE 360</div>
+            <div class="scroll-area" style="text-align: center;">
+                <p style="font-size: 3vmin; color: var(--text-dim);">Estado actual:</p>
+                <h2 style="font-size: 8vmin; margin: 5px 0;">ESTABLE</h2>
+                <div style="background: var(--glass); padding: 10px; border-radius: 15px; margin-top: 10px;">
+                    <p style="font-size: 3vmin;">Próxima Cita:</p>
+                    <p id="next-event" style="font-weight: bold; color: var(--cian);">-</p>
+                </div>
+            </div>
+            <div class="footer">
+                <button class="btn-tool" onclick="switchView('view-home')">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA SOS -->
+    <div id="crisis-screen" onclick="this.style.display='none'">
+        <div style="font-size: 15vmin;">⚠</div>
+        <h2 style="font-size: 6vmin;">MODO CRISIS</h2>
+        <p style="margin-top: 10px;">Esperanza ha sido alertada</p>
+        <p style="font-size: 3vmin; color: #fff; margin-top: 20px; opacity: 0.7;">(Toca para cancelar)</p>
+    </div>
+
+    <script>
+        // --- MOTOR DE PERSISTENCIA (Benjamín Edition) ---
+        const DB_KEY = 'super_asistente_360_v1';
+        let state = JSON.parse(localStorage.getItem(DB_KEY)) || {
+            weekType: 'visit', // 'visit', 'assembly', 'precursor'
+            migraineMode: false,
+            tasks: [
+                { id: 1, title: 'Revisión Registros', type: 'visit', done: false },
+                { id: 2, title: 'Salida al Campo', type: 'visit', done: false },
+                { id: 3, title: 'Reunión con Ancianos', type: 'visit', done: false },
+                { id: 4, title: 'Informe Semestral', type: 'all', done: false }
+            ]
+        };
+
+        function save() {
+            localStorage.setItem(DB_KEY, JSON.stringify(state));
+        }
+
+        // --- NAVEGACIÓN ---
+        function switchView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // --- LÓGICA DE INTERFAZ ---
+        function render() {
+            // Actualizar Label de Semana
+            const labels = { visit: 'VISITA', assembly: 'ASAMBLEA', precursor: 'PRECURSOR' };
+            const colors = { visit: 'var(--green)', assembly: 'var(--cian)', precursor: 'var(--orange)' };
+            
+            const labelEl = document.getElementById('week-label');
+            labelEl.innerText = labels[state.weekType];
+            labelEl.style.color = colors[state.weekType];
+
+            // Renderizar Tareas
+            const list = document.getElementById('task-list');
+            list.innerHTML = '';
+            
+            state.tasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = `card ${task.done ? 'done' : ''}`;
+                
+                // Color por tipo de semana o tarea
+                const cardColor = task.type === 'all' ? varProp('--cian') : colors[state.weekType];
+                card.style.borderLeftColor = cardColor;
+                
+                card.onclick = () => {
+                    task.done = !task.done;
+                    if (navigator.vibrate) navigator.vibrate(40);
+                    save();
+                    render();
+                };
+
+                card.innerHTML = `
+                    <div style="width:16px; height:16px; border-radius:50%; border:2px solid #555; background:${task.done ? cardColor : 'transparent'}"></div>
+                    <div class="card-title">${task.title}</div>
+                `;
+                list.appendChild(card);
+            });
+
+            // Próximo evento en Salud
+            const next = state.tasks.find(t => !t.done);
+            document.getElementById('next-event').innerText = next ? next.title : 'Día Terminado';
+        }
+
+        function updateWeekType(type) {
+            state.weekType = type;
+            save();
+            render();
+            if (navigator.vibrate) navigator.vibrate(60);
+            switchView('view-home');
+        }
+
+        function toggleMigraine() {
+            state.migraineMode = !state.migraineMode;
+            const container = document.getElementById('main-container');
+            const toggle = document.getElementById('migraine-toggle');
+            
+            if (state.migraineMode) {
+                container.classList.add('migraine-active');
+                toggle.innerText = 'ON';
+                toggle.style.color = 'var(--orange)';
+            } else {
+                container.classList.remove('migraine-active');
+                toggle.innerText = 'OFF';
+                toggle.style.color = 'var(--cian)';
+            }
+            save();
+        }
+
+        function triggerCrisis() {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
+            document.getElementById('crisis-screen').style.display = 'flex';
+        }
+
+        function resetApp() {
+            if (confirm("¿Borrar todos los datos?")) {
+                localStorage.removeItem(DB_KEY);
+                location.reload();
+            }
+        }
+
+        function varProp(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        // --- LOOP DE TIEMPO REAL ---
+        function tick() {
+            const now = new Date();
+            document.getElementById('clock').innerText = 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            
+            // Simulación de BPM tranquila
+            document.getElementById('bpm').innerText = 65 + Math.floor(Math.random() * 8);
+        }
+
+        setInterval(tick, 1000);
+        tick();
+        render();
+        if (state.migraineMode) { 
+            state.migraineMode = false; // Reset temporal para forzar el toggle visual
+            toggleMigraine(); 
+        }
+
+        // Registro de Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+</html>
+
+```
             </div>
             <div class="footer">
                 <button class="btn-circle" style="color: var(--accent-red); border-color: var(--accent-red);" onclick="triggerCrisis()">⚠</button>
