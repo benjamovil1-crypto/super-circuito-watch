@@ -5,101 +5,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
-    <title>Asistente 360 - Benjamín</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Asistente 360</title>
     <style>
-        /* 1. CONFIGURACIÓN DE PANTALLA CRÍTICA (Basada en Fase 2) */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* 1. BLOQUEO DE ESCALA DEL NAVEGADOR */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
         
         body, html { 
-            background-color: #000; 
-            color: #fff; 
-            height: 100%; 
-            width: 100%; 
-            overflow: hidden; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: #000; color: #fff; 
+            height: 100%; width: 100%; 
+            overflow: hidden; display: flex;
+            justify-content: center; align-items: center;
             font-family: Arial, sans-serif;
-            -webkit-text-size-adjust: none; /* Evita que el reloj agrande la letra solo */
         }
 
-        /* 2. EL CONTENEDOR CIRCULAR (Fijo en 310px para Watch 7) */
+        /* 2. EL ANILLO AZUL (BASE DE FASE 2 - 310px es el tamaño seguro) */
         .watch-container {
-            width: 310px;
-            height: 310px;
+            width: 310px; height: 310px;
             border-radius: 50%;
-            border: 2px solid #1e5fa8; /* El anillo azul que te gustó */
+            border: 2px solid #1e5fa8;
             position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 45px 35px 40px 35px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between;
+            padding: 45px 30px 40px 30px; /* Safe Area para que no se corte */
             background: radial-gradient(circle, #04081a 0%, #000 100%);
             box-shadow: inset 0 0 20px rgba(30, 95, 168, 0.4);
         }
 
-        /* 3. RELOJ (Tamaño fijo para que no crezca) */
-        .header { text-align: center; }
-        #clock { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        .bpm-info { font-size: 12px; color: #5ce875; margin-top: 2px; font-weight: bold; }
+        /* 3. RELOJ Y SALUD (Tamaños fijos en PX) */
+        #clock { font-size: 26px; font-weight: bold; color: #7ec8f5; line-height: 1; }
+        .bpm-info { font-size: 13px; color: #5ce875; margin-top: 3px; font-weight: bold; }
 
-        /* 4. LISTA DE TAREAS (Diseño ultra-limpio) */
+        /* 4. LISTA DE TAREAS (Diseño ultra-discreto) */
         .task-area {
-            flex: 1;
-            width: 100%;
-            overflow-y: auto;
-            margin: 10px 0;
-            scrollbar-width: none;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            flex: 1; width: 100%; overflow-y: auto;
+            margin: 10px 0; scrollbar-width: none;
+            display: flex; flex-direction: column; gap: 6px;
         }
         .task-area::-webkit-scrollbar { display: none; }
 
         .task-row {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 8px 10px;
-            border-radius: 12px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-left: 4px solid #1e5fa8; /* Azul por defecto */
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 10px; border-radius: 12px;
+            font-size: 14px; display: flex; align-items: center; gap: 10px;
+            border-left: 4px solid #1e5fa8;
         }
-        .task-row.done { 
-            opacity: 0.3; 
-            border-left-color: #444; 
-            text-decoration: line-through;
-        }
+        .task-row.done { opacity: 0.3; border-left-color: #444; text-decoration: line-through; }
 
-        /* Indicador de check circular */
         .check-dot {
             width: 14px; height: 14px; border-radius: 50%;
             border: 1.5px solid #7ec8f5; flex-shrink: 0;
         }
 
-        /* 5. BOTONES (Abajo en zona segura) */
+        /* 5. ICONOS DE ACCIÓN (Ajustes y SOS) */
         .footer { display: flex; gap: 20px; }
-        .btn-icon {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(30, 95, 168, 0.2); border: 1px solid #1e5fa8;
+        .btn-tool {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(30, 95, 168, 0.15); border: 1.2px solid rgba(126, 200, 245, 0.4);
             color: #fff; display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
         }
 
-        /* PANTALLA DE CRISIS (SOS) */
-        #sos-overlay {
-            position: fixed; inset: 0; background: #900; z-index: 1000;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 20px; border-radius: 50%;
+        /* PANTALLA CRISIS (MODAL) */
+        #sos-screen {
+            position: fixed; inset: 0; background: #800; z-index: 1000;
+            display: none; flex-direction: column; justify-content: center; 
+            align-items: center; text-align: center; border-radius: 50%;
         }
     </style>
 </head>
 <body>
 
-    <div class="watch-container" id="app-ui">
+    <div class="watch-container" id="main-ui">
         <!-- CABECERA -->
+        <div style="text-align: center;">
+            <div id="clock">00:00</div>
+            <div class="bpm-info">❤ <span id="bpm">72</span> BPM · OK</div>
+        </div>
+
+        <!-- TAREAS DIARIAS -->
+        <div class="task-area" id="list">
+            <!-- Cargado por JS -->
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="footer">
+            <button class="btn-tool" onclick="sos()" style="color:#ff6060; border-color:#ff6060">⚠</button>
+            <button class="btn-tool" onclick="config()">⚙</button>
+        </div>
+    </div>
+
+    <!-- OVERLAY SOS -->
+    <div id="sos-screen" onclick="this.style.display='none'">
+        <div style="font-size: 40px;">⚠</div>
+        <div style="font-size: 20px; font-weight: bold; margin-top: 10px;">AVISO ENVIADO</div>
+        <p style="font-size: 14px;">Esperanza alertada</p>
+    </div>
+
+    <script>
+        // PERSISTENCIA DE DATOS
+        const DB = 'benja_watch_final';
+        let state = JSON.parse(localStorage.getItem(DB)) || {
+            week: 'visit',
+            tasks: [
+                { id: 1, t: 'Cita Precursores', d: false },
+                { id: 2, t: 'Salida al Campo', d: false },
+                { id: 3, t: 'Pastoreo Glez', d: false }
+            ]
+        };
+
+        function save() { localStorage.setItem(DB, JSON.stringify(state)); }
+
+        function render() {
+            const el = document.getElementById('list');
+            el.innerHTML = state.tasks.map(t => `
+                <div class="task-row ${t.d ? 'done' : ''}" onclick="toggle(${t.id})">
+                    <div class="check-dot" style="background:${t.d ? '#7ec8f5' : 'transparent'}"></div>
+                    <div>${t.t}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggle(id) {
+            const t = state.tasks.find(x => x.id === id);
+            t.d = !t.d;
+            if (navigator.vibrate) navigator.vibrate(40);
+            save(); render();
+        }
+
+        function sos() {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            document.getElementById('sos-screen').style.display = 'flex';
+        }
+
+        function config() {
+            const types = ['visit', 'assembly', 'precursor'];
+            let current = types.indexOf(state.week);
+            state.week = types[(current + 1) % types.length];
+            save();
+            alert("Semana: " + state.week.toUpperCase());
+        }
+
+        function update() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+            document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 8);
+        }
+
+        setInterval(update, 1000);
+        update(); render();
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+</html>
+
+```
         <div class="header">
             <div id="clock">00:00</div>
             <div class="bpm-info">❤ <span id="bpm">72</span> BPM</div>
