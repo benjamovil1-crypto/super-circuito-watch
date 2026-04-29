@@ -185,6 +185,91 @@
 </html>
 
 ```
+        <div class="task-area" id="task-list">
+            <!-- Se genera con JS -->
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="footer">
+            <button class="btn" onclick="triggerSOS()" style="color:#ff6060; border-color:#ff6060">⚠</button>
+            <button class="btn" onclick="toggleMigraine()">⚙</button>
+        </div>
+    </div>
+
+    <!-- OVERLAY SOS -->
+    <div id="sos-overlay" onclick="this.style.display='none'">
+        <div style="font-size: 40px;">⚠</div>
+        <div style="font-size: 20px; font-weight: bold; margin-top: 10px;">AVISO ENVIADO</div>
+        <p style="font-size: 14px; margin-top: 5px;">Esperanza ha sido alertada</p>
+    </div>
+
+    <script>
+        // DATOS CON PERSISTENCIA
+        const DB_NAME = 'benjamin_watch_v5';
+        let state = JSON.parse(localStorage.getItem(DB_NAME)) || {
+            m: false,
+            tasks: [
+                { id: 1, t: 'Cita Precursor', d: false },
+                { id: 2, t: 'Salida Campo', d: false },
+                { id: 3, t: 'Pastoreo Glez', d: false }
+            ]
+        };
+
+        function save() { localStorage.setItem(DB_NAME, JSON.stringify(state)); }
+
+        function render() {
+            const list = document.getElementById('task-list');
+            list.innerHTML = state.tasks.map(task => `
+                <div class="task-row ${task.d ? 'done' : ''}" onclick="toggleTask(${task.id})">
+                    <div class="check-dot" style="background:${task.d ? '#7ec8f5' : 'transparent'}"></div>
+                    <div style="${task.d ? 'text-decoration:line-through' : ''}">${task.t}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleTask(id) {
+            const task = state.tasks.find(x => x.id === id);
+            task.d = !task.d;
+            if (navigator.vibrate) navigator.vibrate(40);
+            save(); render();
+        }
+
+        function triggerSOS() {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            document.getElementById('sos-overlay').style.display = 'flex';
+        }
+
+        function toggleMigraine() {
+            state.m = !state.m;
+            document.getElementById('app-ui').style.filter = state.m ? 'sepia(0.8) brightness(0.6)' : 'none';
+            save();
+            alert("Modo Migraña: " + (state.m ? "ON" : "OFF"));
+        }
+
+        function update() {
+            const now = new Date();
+            document.getElementById('clock').innerText = 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 8);
+        }
+
+        setInterval(update, 1000);
+        update(); render();
+        
+        // Cargar estado de migraña al iniciar
+        if (state.m) {
+            document.getElementById('app-ui').style.filter = 'sepia(0.8) brightness(0.6)';
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+</html>
+
+```
 
         <div class="footer-tools">
             <button class="btn" onclick="triggerSOS()" style="color:#ff6060">⚠</button>
