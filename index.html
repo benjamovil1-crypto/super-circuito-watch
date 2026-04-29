@@ -6,86 +6,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Asistente 360</title>
     <style>
-        /* 1. DISEÑO BASE - TODO NEGRO Y CENTRADO */
+        /* DISEÑO FIJO PARA EVITAR DEFORMACIONES */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
+        
         body { 
             background: #000; color: #fff; margin: 0; 
             font-family: Arial, sans-serif; display: flex; 
             justify-content: center; align-items: center; height: 100vh;
         }
 
-        /* 2. EL ANILLO AZUL (Safe Zone de 310px para tu Watch 7) */
+        /* EL ANILLO AZUL (Safe Zone de 310px para tu Watch 7) */
         .circulo-watch {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
             padding: 50px 30px; background: radial-gradient(circle, #04081a 0%, #000 100%);
+            position: relative;
         }
 
-        /* 3. RELOJ Y SALUD */
-        #hora { font-size: 28px; font-weight: bold; color: #7ec8f5; }
-        .pulso { font-size: 14px; color: #5ce875; }
+        /* CABECERA: RELOJ Y SALUD */
+        #hora { font-size: 30px; font-weight: bold; color: #7ec8f5; }
+        .pulso { font-size: 14px; color: #5ce875; font-weight: bold; }
 
-        /* 4. TAREAS (Simples, para tildar) */
-        .tareas { flex: 1; width: 100%; margin: 10px 0; overflow-y: auto; }
+        /* TAREAS (Con memoria) */
+        .tareas { 
+            flex: 1; width: 100%; margin: 10px 0; 
+            overflow-y: auto; scrollbar-width: none; 
+        }
+        .tareas::-webkit-scrollbar { display: none; }
+
         .item { 
-            background: rgba(255,255,255,0.1); margin-bottom: 5px; 
-            padding: 8px; border-radius: 10px; font-size: 14px; 
+            background: rgba(255,255,255,0.1); margin-bottom: 6px; 
+            padding: 10px; border-radius: 12px; font-size: 14px; 
             display: flex; align-items: center; gap: 10px;
+            border-left: 4px solid #1e5fa8;
         }
-        .item.listo { opacity: 0.3; text-decoration: line-through; }
+        .item.listo { opacity: 0.3; text-decoration: line-through; border-left-color: #444; }
 
-        /* 5. BOTONES DE ABAJO */
+        /* BOTONES DE ACCIÓN */
         .botones { display: flex; gap: 20px; }
         .btn { 
-            width: 40px; height: 40px; border-radius: 50%; 
-            border: 1px solid #1e5fa8; color: white; background: none; 
-            font-size: 18px; 
+            width: 44px; height: 44px; border-radius: 50%; 
+            border: 1.5px solid #1e5fa8; color: white; background: rgba(30,95,168,0.2); 
+            font-size: 20px; cursor: pointer;
         }
 
-        /* EMERGENCIA */
-        #sos { 
-            display: none; position: fixed; inset: 0; background: red; 
+        /* PANTALLA SOS */
+        #sos-overlay { 
+            display: none; position: fixed; inset: 0; background: #800; 
             justify-content: center; align-items: center; flex-direction: column;
+            border-radius: 50%; text-align: center; z-index: 100;
         }
     </style>
 </head>
 <body>
 
     <div class="circulo-watch">
-        <div>
+        <div style="text-align: center;">
             <div id="hora">00:00</div>
-            <div class="pulso">❤ 72 BPM</div>
+            <div class="pulso">❤ <span id="bpm">72</span> BPM</div>
         </div>
 
-        <div class="tareas">
-            <div class="item" onclick="this.classList.toggle('listo')">
-                <div style="width:10px;height:10px;border:1px solid #fff;border-radius:50%"></div>
-                Cita Precursores
-            </div>
-            <div class="item" onclick="this.classList.toggle('listo')">
-                <div style="width:10px;height:10px;border:1px solid #fff;border-radius:50%"></div>
-                Salida al Campo
-            </div>
+        <div class="tareas" id="lista-tareas">
+            <!-- Tareas dinámicas -->
         </div>
 
         <div class="botones">
-            <button class="btn" onclick="document.getElementById('sos').style.display='flex'">⚠</button>
-            <button class="btn" onclick="location.reload()">⚙</button>
+            <button class="btn" onclick="activarSOS()" style="color:#ff6060; border-color:#ff6060">⚠</button>
+            <button class="btn" onclick="cambiarSemana()">⚙</button>
         </div>
     </div>
 
-    <div id="sos" onclick="this.style.display='none'">
-        <h1>AVISO SOS</h1>
-        <p>Toca para cerrar</p>
+    <!-- PANTALLA DE EMERGENCIA -->
+    <div id="sos-overlay" onclick="this.style.display='none'">
+        <div style="font-size: 40px;">⚠</div>
+        <div style="font-size: 20px; font-weight: bold;">AVISO SOS</div>
+        <p style="font-size: 14px;">Esperanza alertada</p>
     </div>
 
     <script>
-        function actualizar() {
+        // PERSISTENCIA: Datos que no se borran
+        let datos = JSON.parse(localStorage.getItem('benja_360')) || {
+            semana: 'visit', // visit, assembly, precursor
+            tareas: [
+                { id: 1, t: 'Cita Precursores', d: false },
+                { id: 2, t: 'Salida al Campo', d: false },
+                { id: 3, t: 'Pastoreo Fam. Glez', d: false }
+            ]
+        };
+
+        function guardar() { localStorage.setItem('benja_360', JSON.stringify(datos)); }
+
+        function render() {
+            const cont = document.getElementById('lista-tareas');
+            const colores = { visit: '#5ce875', assembly: '#7ec8f5', precursor: '#ffd060' };
+            const colorActual = colores[datos.semana];
+
+            cont.innerHTML = datos.tareas.map(tarea => `
+                <div class="item ${tarea.d ? 'listo' : ''}" 
+                     style="border-left-color: ${tarea.d ? '#444' : colorActual}"
+                     onclick="tildar(${tarea.id})">
+                    <div style="width:12px; height:12px; border-radius:50%; border:2px solid ${colorActual}; background:${tarea.d ? colorActual : 'transparent'}"></div>
+                    <div>${tarea.t}</div>
+                </div>
+            `).join('');
+        }
+
+        function tildar(id) {
+            const t = datos.tareas.find(x => x.id === id);
+            t.d = !t.d;
+            if (navigator.vibrate) navigator.vibrate(40);
+            guardar();
+            render();
+        }
+
+        function activarSOS() {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            document.getElementById('sos-overlay').style.display = 'flex';
+        }
+
+        function cambiarSemana() {
+            const modos = ['visit', 'assembly', 'precursor'];
+            let actual = modos.indexOf(datos.semana);
+            datos.semana = modos[(actual + 1) % modos.length];
+            guardar();
+            render();
+            // Aviso discreto del modo actual
+            const n = datos.semana.toUpperCase();
+            document.getElementById('bpm').innerText = n;
+            setTimeout(() => tick(), 2000);
+        }
+
+        function tick() {
             const d = new Date();
             document.getElementById('hora').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+            document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 10);
         }
-        setInterval(actualizar, 1000);
-        actualizar();
+
+        setInterval(tick, 1000);
+        tick();
+        render();
     </script>
 </body>
 </html>
