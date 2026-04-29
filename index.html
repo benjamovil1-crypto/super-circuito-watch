@@ -5,144 +5,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
-    <title>Asistente 360 - Benjamín</title>
+    <title>Asistente 360</title>
     <style>
-        :root {
-            --bg: #000;
-            --cian: #7ec8f5;
-            --green: #5ce875;
-            --orange: #ffd060;
-            --red: #ff6060;
-            --glass: rgba(255, 255, 255, 0.12);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        /* 1. ELIMINAR CUALQUIER MARGEN DEL NAVEGADOR */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        body { 
+        body, html { 
             background-color: #000; 
             color: #fff; 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            height: 100vh; width: 100vw; 
+            height: 100%; 
+            width: 100%; 
             overflow: hidden; 
-            display: flex; justify-content: center; align-items: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        /* CONTENEDOR DE CENTRADO ABSOLUTO */
-        .safe-container {
+        /* 2. EL CONTENEDOR RÍGIDO (No se moverá de aquí) */
+        .safe-circle {
+            width: 90vw; /* Usamos casi todo el ancho pero dejamos aire */
+            height: 90vw; 
+            max-width: 320px; /* Tamaño máximo para que no crezca de más */
+            max-height: 320px;
+            border-radius: 50%;
             position: relative;
-            width: 100vmin;
-            height: 100vmin;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            /* Dejamos un 20% de margen vacío en los bordes para evitar curvas */
-            padding: 20%; 
+            border: 1px solid #1e5fa8;
+            padding: 15%; /* Margen interno para que las letras no toquen el borde */
             background: radial-gradient(circle, #060c25 0%, #000 100%);
         }
 
-        .view { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-between; }
-        .view.active { display: flex; }
+        /* 3. RELOJ Y SALUD (Muy compactos) */
+        .top-info { text-align: center; margin-bottom: 5px; }
+        #clock { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
+        .bpm-tag { font-size: 12px; color: #5ce875; margin-top: 2px; }
 
-        /* HEADER: RELOJ Y SALUD */
-        .header { width: 100%; text-align: center; }
-        #clock { font-size: 8vmin; font-weight: 700; color: var(--cian); line-height: 1; margin-bottom: 2px; }
-        .health-card { 
-            display: inline-flex; align-items: center; gap: 5px; 
-            background: var(--glass); padding: 4px 12px; border-radius: 15px; 
-            font-size: 3.2vmin; color: var(--green); border: 1px solid rgba(92, 232, 117, 0.2);
-        }
-
-        /* LISTA DE FLUJO DE TRABAJO */
+        /* 4. LISTA DE TAREAS (Pequeña y funcional) */
         .task-list {
-            flex: 1; width: 100%; overflow-y: auto; 
-            margin: 10px 0; scrollbar-width: none;
-            display: flex; flex-direction: column; gap: 8px;
+            width: 100%;
+            height: 100px;
+            overflow-y: auto;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            scrollbar-width: none;
         }
         .task-list::-webkit-scrollbar { display: none; }
 
         .task-card {
-            background: var(--glass); border-radius: 15px;
-            padding: 10px; display: flex; align-items: center;
-            gap: 10px; border-left: 5px solid var(--cian);
-            width: 100%;
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 3px solid #7ec8f5;
         }
-        .task-card.done { opacity: 0.2; border-left-color: #444; }
-        .task-title { font-size: 3.8vmin; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .task-card.done { opacity: 0.3; border-left-color: #444; }
 
-        /* FOOTER: HERRAMIENTAS */
-        .footer { width: 100%; display: flex; justify-content: center; gap: 15px; }
-        .btn-action {
-            width: 45px; height: 45px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            background: var(--glass); border: 1.5px solid rgba(255,255,255,0.2);
-            color: #fff; font-size: 20px;
+        /* 5. BOTONES (Abajo pero sin tocar el borde) */
+        .footer-tools { display: flex; gap: 15px; margin-top: 5px; }
+        .btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); border: 1px solid #444;
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
         }
 
-        /* AJUSTES */
-        .option { width: 100%; padding: 12px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; font-size: 3.5vmin; }
-        .indicator { width: 12px; height: 12px; border-radius: 50%; }
-
-        /* PANTALLA SOS */
+        /* OVERLAYS */
         #sos-screen {
-            position: fixed; inset: 0; background: #900; z-index: 1000;
+            position: fixed; inset: 0; background: #800; z-index: 100;
             display: none; flex-direction: column; justify-content: center; align-items: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="safe-container" id="app-body">
-        
-        <!-- VISTA: FLUJO DIARIO -->
-        <div id="view-home" class="view active">
-            <div class="header">
-                <div id="clock">00:00</div>
-                <div class="health-card" onclick="switchV('view-settings')">
-                    <span>❤</span> <span id="bpm">72</span> <span style="opacity:0.3">|</span> <span id="week-label">VISITA</span>
-                </div>
-            </div>
-
-            <div class="task-list" id="task-container">
-                <!-- Tareas -->
-            </div>
-
-            <div class="footer">
-                <button class="btn-action" onclick="sos()" style="color:var(--red); border-color:rgba(255,0,0,0.4)">⚠</button>
-                <button class="btn-action" onclick="switchV('view-settings')">⚙</button>
-            </div>
+    <div class="safe-circle" id="main-ui">
+        <div class="top-info">
+            <div id="clock">00:00</div>
+            <div class="bpm-tag">❤ <span id="bpm">72</span> BPM</div>
         </div>
 
-        <!-- VISTA: CONFIGURACIÓN -->
-        <div id="view-settings" class="view">
-            <div style="font-size: 4vmin; color: var(--orange); font-weight: bold;">AJUSTES</div>
-            <div class="task-list">
-                <div class="option" onclick="setWeek('visit')"><span>Visita</span><div class="indicator" style="background:var(--green)"></div></div>
-                <div class="option" onclick="setWeek('assembly')"><span>Asamblea</span><div class="indicator" style="background:var(--cian)"></div></div>
-                <div class="option" onclick="setWeek('precursor')"><span>Precursor</span><div class="indicator" style="background:var(--orange)"></div></div>
-                <div class="option" onclick="toggleM()"><span>Migraña</span><span id="m-val" style="color:var(--cian)">OFF</span></div>
-            </div>
-            <div class="footer">
-                <button class="btn-action" onclick="switchV('view-home')">✕</button>
-            </div>
+        <div class="task-list" id="tasks">
+            <!-- Se carga por JS -->
         </div>
 
+        <div class="footer-tools">
+            <button class="btn" onclick="triggerSOS()" style="color:#ff6060">⚠</button>
+            <button class="btn" onclick="toggleMigraine()">⚙</button>
+        </div>
     </div>
 
-    <!-- PANTALLA SOS -->
     <div id="sos-screen" onclick="this.style.display='none'">
-        <div style="font-size: 15vmin;">⚠</div>
-        <h2 style="font-size: 7vmin;">CRISIS</h2>
-        <p>Aviso enviado</p>
+        <h1>AVISO SOS</h1>
+        <p>Esperanza alertada</p>
     </div>
 
     <script>
-        // PERSISTENCIA
-        const STORAGE_KEY = 'benjamin_asistente_360';
-        let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-            week: 'visit',
-            migraine: false,
+        // Persistencia Simple
+        let state = JSON.parse(localStorage.getItem('benja_v4')) || {
+            m: false,
             tasks: [
+                { id: 1, t: 'Cita Precursor', d: false },
+                { id: 2, t: 'Salida Campo', d: false },
+                { id: 3, t: 'Pastoreo Glez', d: false }
+            ]
+        };
+
+        function save() { localStorage.setItem('benja_v4', JSON.stringify(state)); }
+
+        function render() {
+            const container = document.getElementById('tasks');
+            container.innerHTML = state.tasks.map(t => `
+                <div class="task-card ${t.d ? 'done' : ''}" onclick="toggleTask(${t.id})">
+                    <div style="width:12px;height:12px;border-radius:50%;border:1px solid #7ec8f5;background:${t.d ? '#7ec8f5' : 'transparent'}"></div>
+                    <div style="${t.d ? 'text-decoration:line-through' : ''}">${t.t}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleTask(id) {
+            const t = state.tasks.find(x => x.id === id);
+            t.d = !t.d;
+            if(navigator.vibrate) navigator.vibrate(40);
+            save(); render();
+        }
+
+        function triggerSOS() {
+            if(navigator.vibrate) navigator.vibrate([100,50,100]);
+            document.getElementById('sos-screen').style.display = 'flex';
+        }
+
+        function toggleMigraine() {
+            state.m = !state.m;
+            document.getElementById('main-ui').style.filter = state.m ? 'sepia(0.8) brightness(0.6)' : 'none';
+            save();
+            alert("Modo Migraña: " + (state.m ? "ON" : "OFF"));
+        }
+
+        function update() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+            document.getElementById('bpm').innerText = 70 + Math.floor(Math.random()*6);
+        }
+
+        setInterval(update, 1000);
+        update(); render();
+        if(state.m) { state.m = false; toggleMigraine(); }
+    </script>
+</body>
+</html>
+
+```
                 { id: 1, title: 'Registros Congo', type: 'visit', done: false },
                 { id: 2, title: 'Salida Campo', type: 'visit', done: false },
                 { id: 3, title: 'Reunión Ancianos', type: 'visit', done: false }
