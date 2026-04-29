@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Benjamín - Flujo Específico 360</title>
+    <title>Benjamín 360 - Flujo por Día</title>
     <style>
         /* CONFIGURACIÓN CRÍTICA: TAMAÑOS FIJOS PARA WATCH 7 */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
@@ -21,23 +21,23 @@
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
-            padding: 52px 32px 40px 32px; 
+            padding: 50px 32px 38px 32px; 
             background: radial-gradient(circle, #04081a 0%, #000 100%);
             position: relative; overflow: hidden;
-            transition: border-color 1s ease;
+            transition: border-color 0.8s ease;
         }
 
         /* CABECERA INTELIGENTE */
         .header { text-align: center; width: 100%; z-index: 10; }
         #clock { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        #cong-info { font-size: 11px; font-weight: bold; margin-top: 3px; text-transform: uppercase; color: #ffd060; }
+        #cong-info { font-size: 11px; font-weight: bold; margin-top: 2px; text-transform: uppercase; color: #ffd060; }
         
         .status-pill { 
-            display: inline-block; font-size: 9px; padding: 1px 8px; 
+            display: inline-block; font-size: 10px; padding: 1px 10px; 
             border-radius: 8px; margin-top: 4px; font-weight: 800; color: #000;
         }
 
-        /* FLUJO ESPECÍFICO (Reflejo de CircuitoApp) */
+        /* FLUJO DIARIO (Reflejo exacto de CircuitoApp) */
         .unified-flow { 
             flex: 1; width: 100%; margin: 8px 0; 
             overflow-y: auto; scrollbar-width: none; z-index: 5;
@@ -45,13 +45,14 @@
         .unified-flow::-webkit-scrollbar { display: none; }
 
         .task-card { 
-            background: rgba(255,255,255,0.06); margin-bottom: 6px; 
+            background: rgba(255,255,255,0.06); margin-bottom: 5px; 
             padding: 9px 12px; border-radius: 12px; font-size: 13px; 
             display: flex; align-items: center; gap: 8px;
             border-left: 4px solid #444; transition: all 0.3s ease;
         }
-        .task-card.done { opacity: 0.25; text-decoration: line-through; border-left-color: #222 !important; }
-        .source-tag { font-size: 8px; opacity: 0.6; display: block; font-weight: bold; margin-bottom: 1px; }
+        .task-card.done { opacity: 0.2; text-decoration: line-through; border-left-color: #222 !important; }
+        
+        .day-label { font-size: 9px; opacity: 0.6; display: block; font-weight: bold; margin-bottom: 1px; }
 
         /* FOOTER */
         .footer { display: flex; gap: 30px; z-index: 10; margin-bottom: 5px; }
@@ -61,7 +62,7 @@
             font-size: 20px; display: flex; align-items: center; justify-content: center;
         }
 
-        /* SOS BORDÓ (ANTIMIGRAÑA) */
+        /* SOS BORDÓ */
         #sos-overlay { 
             display: none; position: absolute; inset: 0; 
             background: #2a0000; justify-content: center; 
@@ -73,16 +74,16 @@
 <body>
 
     <div class="watch-shell" id="main-shell">
-        <!-- CABECERA -->
+        <!-- HEADER -->
         <div class="header">
             <div id="clock">00:00</div>
             <div id="cong-info">SINCRONIZANDO...</div>
             <div id="week-pill" class="status-pill">ESPERE</div>
         </div>
 
-        <!-- FLUJO DE TRABAJO DINÁMICO -->
+        <!-- FLUJO INTELIGENTE POR DÍA -->
         <div class="unified-flow" id="main-flow">
-            <!-- Cargado por JS -->
+            <!-- Cargado por JS según el día de la semana -->
         </div>
 
         <!-- ACCIONES -->
@@ -94,15 +95,15 @@
         <!-- OVERLAY SOS -->
         <div id="sos-overlay" onclick="this.style.display='none'">
             <div style="font-size: 45px; color: #ff6060;">⚠</div>
-            <div style="font-size: 20px; font-weight: bold;">CRISIS</div>
+            <div style="font-size: 18px; font-weight: bold;">CRISIS</div>
             <p style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Aviso enviado</p>
         </div>
     </div>
 
     <script>
         /**
-         * TABLA MAESTRA DE ITINERARIO (Punto 2: Tareas Específicas)
-         * Aquí defines las tareas únicas que anotaste en tu Super CircuitoApp para cada visita.
+         * TABLA MAESTRA CON INTELIGENCIA POR DÍA
+         * Días: 1: Lun, 2: Mar, 3: Mié, 4: Jue, 5: Vie, 6: Sáb, 0: Dom
          */
         const ITINERARIO = [
             { 
@@ -110,45 +111,30 @@
                 end: '2026-04-26', 
                 cong: 'Cong. Centro', 
                 type: 'visit',
-                tasks: [
-                    { t: 'Revisar Cuentas Salón', src: 'CircuitoApp' },
-                    { t: 'Pastoreo Fam. Martínez', src: 'CircuitoApp' },
-                    { t: 'Reunión Precursores', src: 'CircuitoApp' },
-                    { t: 'Hidratación', src: '360' }
-                ]
+                dailyTasks: {
+                    2: [{t: 'Revisión Registros', s: 'APK'}, {t: 'Reunión Secretario', s: 'APK'}],
+                    3: [{t: 'Reunión Ancianos', s: 'APK'}, {t: 'Pastoreo Fam. Glez', s: 'APK'}],
+                    6: [{t: 'Salida al Campo', s: 'APK'}, {t: 'Reunión Precursores', s: 'APK'}],
+                    0: [{t: 'Discurso Público', s: 'APK'}, {t: 'Examen Watchtower', s: 'APK'}]
+                }
             },
             { 
                 start: '2026-04-27', 
                 end: '2026-05-03', 
                 cong: 'Asamblea SC: Juan 4:24', 
                 type: 'assembly',
-                tasks: [
-                    { t: 'Repaso de Discurso', src: 'CircuitoApp' },
-                    { t: 'Supervisión Acomodadores', src: 'CircuitoApp' },
-                    { t: 'Control de Pulso', src: '360' },
-                    { t: 'Pausa Visual (Migraña)', src: '360' }
-                ]
-            },
-            { 
-                start: '2026-05-04', 
-                end: '2026-05-10', 
-                cong: 'Cong. Norte', 
-                type: 'visit',
-                tasks: [
-                    { t: 'Revisión Registros Campo', src: 'CircuitoApp' },
-                    { t: 'Entrevista Ancianos', src: 'CircuitoApp' },
-                    { t: 'Salida Grupo 3', src: 'CircuitoApp' },
-                    { t: 'Beber Agua', src: '360' }
-                ]
+                dailyTasks: {
+                    6: [{t: 'Repaso Discurso', s: 'APK'}, {t: 'Logística Audio', s: 'APK'}],
+                    0: [{t: 'Sesión Mañana', s: 'APK'}, {t: 'Sesión Tarde', s: 'APK'}]
+                }
             }
         ];
 
-        const STORAGE_KEY = 'benja_specific_v2';
+        const STORAGE_KEY = 'benja_daily_intel_v1';
         let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { doneIds: [] };
 
         function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-        // Reconocimiento automático de fecha
         function getActiveWeek() {
             const today = new Date();
             const todayClean = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -158,11 +144,7 @@
                 const end = new Date(s.end.replace(/-/g, '\/'));
                 return todayClean >= start && todayClean <= end;
             });
-            return match || { 
-                type: 'visit', 
-                cong: 'Circuito 360', 
-                tasks: [{t: 'Sin tareas programadas', src: 'Info'}] 
-            };
+            return match || { type: 'visit', cong: 'Circuito 360', dailyTasks: {} };
         }
 
         function render() {
@@ -172,9 +154,12 @@
             const shell = document.getElementById('main-shell');
             
             const active = getActiveWeek();
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0-6
+            
             const config = {
-                visit: { color: '#5ce875', label: 'SEMANA VISITA' },
-                assembly: { color: '#7ec8f5', label: 'SEMANA ASAMBLEA' },
+                visit: { color: '#5ce875', label: 'VISITA' },
+                assembly: { color: '#7ec8f5', label: 'ASAMBLEA' },
                 precursor: { color: '#ffd060', label: 'PRECURSORES' }
             };
 
@@ -184,16 +169,20 @@
             pill.style.background = ui.color;
             shell.style.borderColor = ui.color;
 
-            // Renderizado de tareas específicas del itinerario
-            flow.innerHTML = active.tasks.map((task, idx) => {
-                const uniqueId = `${active.cong}-${active.start}-${idx}`;
+            // Obtener tareas de hoy de la APK + Salud 360 fija
+            const daily = active.dailyTasks[dayOfWeek] || [{t: 'Día de Viaje/Personal', s: 'Info'}];
+            const health = [{t: 'Hidratación', s: '360'}, {t: 'Control Salud', s: '360'}];
+            const allTasks = [...daily, ...health];
+
+            flow.innerHTML = allTasks.map((task, idx) => {
+                const uniqueId = `${active.cong}-${dayOfWeek}-${idx}`;
                 const isDone = state.doneIds.includes(uniqueId);
                 return `
                     <div class="task-card ${isDone ? 'done' : ''}" 
                          style="border-left-color: ${ui.color}"
                          onclick="toggleTask('${uniqueId}')">
                         <div style="flex:1">
-                            <span class="source-tag" style="color:${ui.color}">${task.src}</span>
+                            <span class="day-label" style="color:${ui.color}">${task.s}</span>
                             <span>${task.t}</span>
                         </div>
                         <div style="width:14px; height:14px; border-radius:50%; border:1.5px solid ${ui.color}; background:${isDone ? ui.color : 'transparent'}"></div>
@@ -219,9 +208,7 @@
 
         function updateClock() {
             const d = new Date();
-            document.getElementById('clock').innerText = 
-                d.getHours().toString().padStart(2,'0') + ':' + 
-                d.getMinutes().toString().padStart(2,'0');
+            document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
         }
 
         setInterval(updateClock, 1000);
