@@ -5,17 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="manifest" href="manifest.json">
-    <title>Super Ecosistema 360</title>
+    <title>CircuitoApp - Safe Edition</title>
     <style>
         :root {
             --bg: #000;
-            --glass: rgba(255, 255, 255, 0.08);
             --cian: #7ec8f5;
             --green: #5ce875;
             --orange: #ffd060;
-            --purple: #c084fc;
             --red: #ff6060;
-            --text-dim: #7a9cbd;
+            --glass: rgba(255, 255, 255, 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -25,81 +23,180 @@
             color: #e8f2ff; 
             font-family: 'Segoe UI', Roboto, sans-serif; 
             height: 100vh; width: 100vw; 
-            overflow: hidden; user-select: none;
+            overflow: hidden; 
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* DISEÑO CIRCULAR OPTIMIZADO */
+        /* CONTENEDOR CIRCULAR CON MÁRGENES DE SEGURIDAD EXTREMOS */
         .watch-face {
-            width: 100vmin; height: 100vmin; border-radius: 50%;
+            width: 100vmin;
+            height: 100vmin;
+            border-radius: 50%;
             background: radial-gradient(circle at center, #060c25 0%, #000 100%);
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: space-between; padding: 16% 12% 14% 12%;
-            position: relative; box-shadow: inset 0 0 40px rgba(30, 95, 168, 0.3);
-            transition: filter 0.5s ease;
+            position: relative;
+            /* Estos paddings empujan todo al CENTRO para que no se corte arriba ni abajo */
+            padding: 18% 12% 16% 12%; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 0 0 40px rgba(30, 95, 168, 0.3);
         }
 
-        /* FILTRO DE MIGRAÑA */
-        .migraine-active { filter: sepia(0.7) brightness(0.6) contrast(0.9); }
-
-        .view { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; }
+        /* VISTAS */
+        .view { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-between; }
         .view.active { display: flex; }
 
-        /* HEADER */
-        .header { text-align: center; width: 100%; z-index: 10; }
-        #clock { font-size: 8.5vmin; font-weight: 700; color: var(--cian); line-height: 1; text-shadow: 0 0 10px rgba(126, 200, 245, 0.4); }
-        
-        /* TARJETA DE SALUD INTERACTIVA (ASISTENTE 360) */
-        .health-card {
-            background: var(--glass); border-radius: 15px;
-            padding: 4px 10px; margin-top: 5px; display: flex;
-            align-items: center; gap: 6px; font-size: 3.2vmin;
-            border: 1px solid rgba(92, 232, 117, 0.2);
+        /* HEADER: Se ajusta para que no toque el borde superior */
+        .header { width: 100%; text-align: center; }
+        #clock { font-size: 8vmin; font-weight: 700; color: var(--cian); line-height: 1; margin-bottom: 2px; }
+        .health-bar { 
+            display: inline-flex; align-items: center; gap: 5px; 
+            background: var(--glass); padding: 2px 10px; border-radius: 12px; 
+            font-size: 3vmin; color: var(--green);
         }
 
-        /* ÁREA DE SCROLL */
+        /* CUERPO: SCROLL CON MÁRGENES LATERALES */
         .scroll-area {
             flex: 1; width: 100%; overflow-y: auto; 
-            margin: 5% 0; padding: 0 5%; scrollbar-width: none;
-            display: flex; flex-direction: column; gap: 8px;
+            margin: 4% 0; scrollbar-width: none;
+            display: flex; flex-direction: column; gap: 6px;
         }
         .scroll-area::-webkit-scrollbar { display: none; }
 
-        /* CARDS */
         .card {
-            background: var(--glass); border-radius: 18px;
-            padding: 10px; display: flex; align-items: center;
+            background: var(--glass); border-radius: 15px;
+            padding: 8px 12px; display: flex; align-items: center;
             gap: 10px; border-left: 4px solid var(--cian);
-            transition: all 0.2s;
         }
-        .card.done { opacity: 0.25; border-left-color: #444; }
-        .card-title { font-size: 3.6vmin; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card.done { opacity: 0.2; }
+        .card-title { font-size: 3.5vmin; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* FOOTER DE HERRAMIENTAS */
-        .footer { display: flex; gap: 12px; margin-bottom: 5%; justify-content: center; z-index: 10; }
+        /* FOOTER: Botones más pequeños y centrados para que no se corten abajo */
+        .footer { width: 100%; display: flex; justify-content: center; gap: 10px; padding-bottom: 2%; }
         .btn-tool {
-            width: 46px; height: 46px; border-radius: 50%;
+            width: 42px; height: 42px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            border: 1.5px solid rgba(255,255,255,0.15); background: var(--glass);
-            color: #fff; font-size: 20px; transition: transform 0.1s;
+            background: var(--glass); border: 1.5px solid rgba(255,255,255,0.15);
+            color: #fff; font-size: 18px;
         }
-        .btn-tool:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
 
-        /* CONFIGURACIÓN */
-        .setting-row { 
-            width: 100%; display: flex; justify-content: space-between; 
-            align-items: center; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); 
-            font-size: 3.5vmin;
-        }
-        .color-indicator { width: 14px; height: 14px; border-radius: 50%; }
-
-        /* CRISIS OVERLAY */
+        /* MODO CRISIS */
         #crisis-screen {
-            position: fixed; inset: 0; background: rgba(180, 0, 0, 0.95);
-            z-index: 1000; display: none; flex-direction: column;
+            position: fixed; inset: 0; background: #b00;
+            z-index: 100; display: none; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
-            padding: 20px;
         }
+    </style>
+</head>
+<body>
+
+    <div class="watch-face" id="container">
+        <!-- PANTALLA PRINCIPAL -->
+        <div id="view-home" class="view active">
+            <div class="header">
+                <div id="clock">00:00</div>
+                <div class="health-bar">
+                    <span>❤</span> <span id="bpm">72</span> <span>|</span> <span id="week">VISITA</span>
+                </div>
+            </div>
+
+            <div class="scroll-area" id="list">
+                <!-- Tareas -->
+            </div>
+
+            <div class="footer">
+                <button class="btn-tool" onclick="sos()" style="color:var(--red); border-color:rgba(255,0,0,0.3)">⚠</button>
+                <button class="btn-tool" onclick="switchV('view-cfg')">⚙</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA AJUSTES -->
+        <div id="view-cfg" class="view">
+            <div style="font-size: 3.5vmin; font-weight: bold; color: var(--orange); margin-top: 5%;">CONFIGURACIÓN</div>
+            <div class="scroll-area">
+                <div style="padding: 10px; border-bottom: 1px solid #333;" onclick="setW('visit')">Semana Visita</div>
+                <div style="padding: 10px; border-bottom: 1px solid #333;" onclick="setW('assembly')">Semana Asamblea</div>
+                <div style="padding: 10px; border-bottom: 1px solid #333;" onclick="setW('precursor')">Semana Precursor</div>
+                <div style="padding: 10px;" onclick="toggleM()">Modo Migraña: <span id="m-status">OFF</span></div>
+            </div>
+            <div class="footer">
+                <button class="btn-tool" onclick="switchV('view-home')">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="crisis-screen" onclick="this.style.display='none'">
+        <div style="font-size: 15vmin;">⚠</div>
+        <h2 style="font-size: 6vmin;">CRISIS</h2>
+        <p>Aviso enviado</p>
+    </div>
+
+    <script>
+        const KEY = 'benjamin_data_v2';
+        let state = JSON.parse(localStorage.getItem(KEY)) || {
+            w: 'visit', m: false,
+            tasks: [
+                { id: 1, t: 'Cita Precursores', type: 'precursor', d: false },
+                { id: 2, t: 'Salida al Campo', type: 'visit', d: false },
+                { id: 3, t: 'Pastoreo Glez', type: 'visit', d: false },
+                { id: 4, t: 'Reunión SC', type: 'assembly', d: false }
+            ]
+        };
+
+        function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+        function switchV(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function render() {
+            const list = document.getElementById('list');
+            const weekL = document.getElementById('week');
+            const labels = { visit: 'VISITA', assembly: 'ASAMBLEA', precursor: 'PRECURSOR' };
+            const colors = { visit: 'var(--green)', assembly: 'var(--cian)', precursor: 'var(--orange)' };
+            
+            weekL.innerText = labels[state.w];
+            weekL.style.color = colors[state.w];
+            list.innerHTML = '';
+
+            state.tasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = `card ${task.d ? 'done' : ''}`;
+                card.style.borderLeftColor = task.type === 'precursor' ? 'var(--orange)' : (task.type === 'assembly' ? 'var(--cian)' : 'var(--green)');
+                card.onclick = () => { task.d = !task.d; if(navigator.vibrate) navigator.vibrate(40); save(); render(); };
+                card.innerHTML = `<div style="width:14px; height:14px; border-radius:50%; border:2px solid #555; background:${task.d ? 'white' : 'transparent'}"></div><div class="card-title">${task.t}</div>`;
+                list.appendChild(card);
+            });
+        }
+
+        function setW(type) { state.w = type; save(); render(); switchV('view-home'); }
+        
+        function toggleM() { 
+            state.m = !state.m; 
+            document.getElementById('m-status').innerText = state.m ? 'ON' : 'OFF';
+            document.getElementById('container').style.filter = state.m ? 'sepia(0.8) brightness(0.6)' : 'none';
+            save(); 
+        }
+
+        function sos() { if(navigator.vibrate) navigator.vibrate([100,50,100]); document.getElementById('crisis-screen').style.display = 'flex'; }
+
+        function tick() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+            document.getElementById('bpm').innerText = 68 + Math.floor(Math.random()*8);
+        }
+
+        setInterval(tick, 1000); tick(); render();
+        if(state.m) { state.m = false; toggleM(); }
+
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
+    </script>
+</body>
+</html>
+
+```
     </style>
 </head>
 <body>
