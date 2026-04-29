@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Asistente 360</title>
+    <title>Asistente 360 - Benjamín</title>
     <style>
-        /* DISEÑO FIJO PARA EVITAR DEFORMACIONES */
+        /* BLOQUEO DE ESCALA PARA EVITAR QUE EL RELOJ DEFORME EL TEXTO */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
         
         body { 
@@ -15,43 +15,46 @@
             justify-content: center; align-items: center; height: 100vh;
         }
 
-        /* EL ANILLO AZUL (Safe Zone de 310px para tu Watch 7) */
+        /* EL ANILLO AZUL (Safe Zone de 310px - No tocar esta medida) */
         .circulo-watch {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
-            padding: 50px 30px; background: radial-gradient(circle, #04081a 0%, #000 100%);
+            padding: 48px 30px 42px 30px; 
+            background: radial-gradient(circle, #04081a 0%, #000 100%);
             position: relative;
         }
 
-        /* CABECERA: RELOJ Y SALUD */
-        #hora { font-size: 30px; font-weight: bold; color: #7ec8f5; }
-        .pulso { font-size: 14px; color: #5ce875; font-weight: bold; }
+        /* CABECERA: RELOJ Y CONGREGACIÓN */
+        .cabecera { text-align: center; }
+        #hora { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
+        #congregacion { font-size: 13px; color: #ffd060; font-weight: bold; margin-top: 2px; text-transform: uppercase; }
+        .pulso { font-size: 11px; color: #5ce875; margin-top: 2px; opacity: 0.8; }
 
-        /* TAREAS (Con memoria) */
+        /* LISTA DE TAREAS (Con Scroll Invisible) */
         .tareas { 
-            flex: 1; width: 100%; margin: 10px 0; 
+            flex: 1; width: 100%; margin: 8px 0; 
             overflow-y: auto; scrollbar-width: none; 
         }
         .tareas::-webkit-scrollbar { display: none; }
 
         .item { 
-            background: rgba(255,255,255,0.1); margin-bottom: 6px; 
-            padding: 10px; border-radius: 12px; font-size: 14px; 
-            display: flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.08); margin-bottom: 5px; 
+            padding: 9px 12px; border-radius: 12px; font-size: 13px; 
+            display: flex; align-items: center; gap: 8px;
             border-left: 4px solid #1e5fa8;
         }
-        .item.listo { opacity: 0.3; text-decoration: line-through; border-left-color: #444; }
+        .item.listo { opacity: 0.25; text-decoration: line-through; border-left-color: #444; }
 
-        /* BOTONES DE ACCIÓN */
-        .botones { display: flex; gap: 20px; }
+        /* BOTONES DE ACCIÓN (SOS Y AJUSTES) */
+        .botones { display: flex; gap: 25px; margin-top: 2px; }
         .btn { 
-            width: 44px; height: 44px; border-radius: 50%; 
+            width: 42px; height: 42px; border-radius: 50%; 
             border: 1.5px solid #1e5fa8; color: white; background: rgba(30,95,168,0.2); 
-            font-size: 20px; cursor: pointer;
+            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        /* PANTALLA SOS */
+        /* PANTALLA SOS (MODAL) */
         #sos-overlay { 
             display: none; position: fixed; inset: 0; background: #800; 
             justify-content: center; align-items: center; flex-direction: column;
@@ -61,10 +64,11 @@
 </head>
 <body>
 
-    <div class="circulo-watch">
-        <div style="text-align: center;">
+    <div class="circulo-watch" id="interfaz">
+        <div class="cabecera">
             <div id="hora">00:00</div>
-            <div class="pulso">❤ <span id="bpm">72</span> BPM</div>
+            <div id="congregacion">CARGANDO...</div>
+            <div class="pulso">❤ <span id="bpm">72</span> BPM · OK</div>
         </div>
 
         <div class="tareas" id="lista-tareas">
@@ -72,7 +76,9 @@
         </div>
 
         <div class="botones">
+            <!-- Botón SOS (Crisis) -->
             <button class="btn" onclick="activarSOS()" style="color:#ff6060; border-color:#ff6060">⚠</button>
+            <!-- Botón Configuración (Ciclo de Semanas) -->
             <button class="btn" onclick="cambiarSemana()">⚙</button>
         </div>
     </div>
@@ -80,29 +86,46 @@
     <!-- PANTALLA DE EMERGENCIA -->
     <div id="sos-overlay" onclick="this.style.display='none'">
         <div style="font-size: 40px;">⚠</div>
-        <div style="font-size: 20px; font-weight: bold;">AVISO SOS</div>
-        <p style="font-size: 14px;">Esperanza alertada</p>
+        <div style="font-size: 18px; font-weight: bold; margin-top: 5px;">AVISO CRISIS</div>
+        <p style="font-size: 12px;">Esperanza alertada</p>
     </div>
 
     <script>
-        // PERSISTENCIA: Datos que no se borran
-        let datos = JSON.parse(localStorage.getItem('benja_360')) || {
+        // BASE DE DATOS LOCAL (Persistencia)
+        const DB_KEY = 'benjamin_360_final';
+        let datos = JSON.parse(localStorage.getItem(DB_KEY)) || {
             semana: 'visit', // visit, assembly, precursor
-            tareas: [
-                { id: 1, t: 'Cita Precursores', d: false },
-                { id: 2, t: 'Salida al Campo', d: false },
-                { id: 3, t: 'Pastoreo Fam. Glez', d: false }
-            ]
+            congregacion: 'Cong. Centro',
+            tareas: {
+                visit: [
+                    { id: 1, t: 'Revisión de Registros', d: false },
+                    { id: 2, t: 'Reunión con Ancianos', d: false },
+                    { id: 3, t: 'Salida al Campo', d: false }
+                ],
+                assembly: [
+                    { id: 4, t: 'Reunión de Oradores', d: false },
+                    { id: 5, t: 'Logística de Auditorio', d: false }
+                ],
+                precursor: [
+                    { id: 6, t: 'Clase de Servicio', d: false },
+                    { id: 7, t: 'Revisión de Horas', d: false }
+                ]
+            }
         };
 
-        function guardar() { localStorage.setItem('benja_360', JSON.stringify(datos)); }
+        function guardar() { localStorage.setItem(DB_KEY, JSON.stringify(datos)); }
 
         function render() {
             const cont = document.getElementById('lista-tareas');
+            const congEl = document.getElementById('congregacion');
             const colores = { visit: '#5ce875', assembly: '#7ec8f5', precursor: '#ffd060' };
+            const etiquetas = { visit: 'Semana Visita', assembly: 'Asamblea', precursor: 'Precursores' };
+            
             const colorActual = colores[datos.semana];
+            congEl.innerText = datos.congregacion;
+            congEl.style.color = colorActual;
 
-            cont.innerHTML = datos.tareas.map(tarea => `
+            cont.innerHTML = datos.tareas[datos.semana].map(tarea => `
                 <div class="item ${tarea.d ? 'listo' : ''}" 
                      style="border-left-color: ${tarea.d ? '#444' : colorActual}"
                      onclick="tildar(${tarea.id})">
@@ -113,7 +136,7 @@
         }
 
         function tildar(id) {
-            const t = datos.tareas.find(x => x.id === id);
+            const t = datos.tareas[datos.semana].find(x => x.id === id);
             t.d = !t.d;
             if (navigator.vibrate) navigator.vibrate(40);
             guardar();
@@ -131,10 +154,7 @@
             datos.semana = modos[(actual + 1) % modos.length];
             guardar();
             render();
-            // Aviso discreto del modo actual
-            const n = datos.semana.toUpperCase();
-            document.getElementById('bpm').innerText = n;
-            setTimeout(() => tick(), 2000);
+            if (navigator.vibrate) navigator.vibrate(60);
         }
 
         function tick() {
