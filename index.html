@@ -203,6 +203,66 @@
 </html>
 
 ```
+            const activeColor = colors[state.weekType] || '#1e5fa8';
+
+            list.innerHTML = state.tasks.map(task => `
+                <div class="task-row ${task.done ? 'done' : ''}" 
+                     style="border-left-color: ${task.done ? '#444' : activeColor}"
+                     onclick="toggleTask(${task.id})">
+                    <div class="check-dot" style="background:${task.done ? activeColor : 'transparent'}; border-color:${activeColor}"></div>
+                    <div>${task.title}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleTask(id) {
+            const task = state.tasks.find(x => x.id === id);
+            task.done = !task.done;
+            if (navigator.vibrate) navigator.vibrate(40);
+            save(); 
+            renderTasks();
+        }
+
+        function triggerSOS() {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            document.getElementById('sos-overlay').style.display = 'flex';
+        }
+
+        function toggleMigraine() {
+            state.migraine = !state.migraine;
+            applyMigraineStyles();
+            save();
+            alert("Modo Migraña: " + (state.migraine ? "Activado" : "Desactivado"));
+        }
+
+        function applyMigraineStyles() {
+            document.getElementById('app-ui').style.filter = state.migraine ? 'sepia(0.8) brightness(0.6)' : 'none';
+        }
+
+        // ACTUALIZACIÓN DE RELOJ Y PULSO
+        function updateUI() {
+            const now = new Date();
+            document.getElementById('clock').innerText = 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 8);
+        }
+
+        // INICIO
+        setInterval(updateUI, 1000);
+        updateUI();
+        renderTasks();
+        applyMigraineStyles();
+
+        // Service Worker para modo Offline
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+</html>
+
+```
         <div class="task-area" id="task-list">
             <!-- Se genera con JS -->
         </div>
