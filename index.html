@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Asistente 360 - Benjamín</title>
+    <title>Asistente 360 - Agenda</title>
     <style>
-        /* BLOQUEO DE ESCALA PARA PROTECCIÓN VISUAL */
+        /* CONFIGURACIÓN CRÍTICA PARA WATCH 7 */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
         
         body { 
@@ -15,7 +15,7 @@
             justify-content: center; align-items: center; height: 100vh;
         }
 
-        /* ANILLO AZUL FIJO (310px - Safe Zone para Watch 7) */
+        /* ANILLO AZUL FIJO (310px - Safe Zone) */
         .circulo-watch {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
@@ -26,143 +26,185 @@
             overflow: hidden;
         }
 
-        /* CABECERA: RELOJ Y CONGREGACIÓN */
-        .cabecera { text-align: center; z-index: 2; }
-        #hora { font-size: 30px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        #congregacion { font-size: 13px; color: #ffd060; font-weight: bold; margin-top: 3px; text-transform: uppercase; }
-        .pulso { font-size: 11px; color: #5ce875; margin-top: 2px; opacity: 0.9; }
+        /* VISTAS */
+        .vista { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-between; }
+        .vista.activa { display: flex; }
 
-        /* LISTA DE TAREAS (Scroll discreto) */
-        .tareas { 
-            flex: 1; width: 100%; margin: 10px 0; 
+        /* CABECERA */
+        .cabecera { text-align: center; }
+        #hora { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
+        #info-semana { font-size: 12px; font-weight: bold; margin-top: 3px; text-transform: uppercase; }
+
+        /* LISTA DE TAREAS Y AGENDA */
+        .area-scroll { 
+            flex: 1; width: 100%; margin: 8px 0; 
             overflow-y: auto; scrollbar-width: none; 
-            z-index: 2;
         }
-        .tareas::-webkit-scrollbar { display: none; }
+        .area-scroll::-webkit-scrollbar { display: none; }
 
-        .item { 
-            background: rgba(255,255,255,0.07); margin-bottom: 6px; 
-            padding: 10px 12px; border-radius: 14px; font-size: 14px; 
-            display: flex; align-items: center; gap: 10px;
+        .tarjeta { 
+            background: rgba(255,255,255,0.07); margin-bottom: 5px; 
+            padding: 9px 12px; border-radius: 12px; font-size: 13px; 
+            display: flex; align-items: center; gap: 8px;
             border-left: 4px solid #1e5fa8;
-            transition: opacity 0.3s;
         }
-        .item.listo { opacity: 0.2; text-decoration: line-through; border-left-color: #444; }
+        .tarjeta.completada { opacity: 0.2; text-decoration: line-through; border-left-color: #444; }
 
-        /* BOTONES DE ACCIÓN */
-        .botones { display: flex; gap: 28px; z-index: 2; }
+        /* BOTONES */
+        .botones { display: flex; gap: 20px; }
         .btn { 
-            width: 44px; height: 44px; border-radius: 50%; 
+            width: 42px; height: 42px; border-radius: 50%; 
             border: 1.5px solid #1e5fa8; color: white; background: rgba(30,95,168,0.2); 
-            font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        /* PANTALLA SOS (MODO CRISIS - COLOR ANTIGLAME) */
+        /* OVERLAY SOS (BORDÓ PROFUNDO ANTIGLANE) */
         #sos-overlay { 
             display: none; position: absolute; inset: 0; 
-            background: #2a0000; /* Rojo muy oscuro/bordó para evitar brillo excesivo */
-            justify-content: center; align-items: center; flex-direction: column;
-            border-radius: 50%; text-align: center; z-index: 10;
+            background: #2a0000; justify-content: center; 
+            align-items: center; flex-direction: column;
+            border-radius: 50%; text-align: center; z-index: 100;
         }
-        .sos-icon { font-size: 45px; color: #ff6060; margin-bottom: 8px; }
-        .sos-txt { font-size: 18px; font-weight: bold; color: #fff; }
     </style>
 </head>
 <body>
 
     <div class="circulo-watch" id="interfaz">
-        <div class="cabecera">
-            <div id="hora">00:00</div>
-            <div id="congregacion">CONG. CENTRO</div>
-            <div class="pulso">❤ <span id="bpm">72</span> BPM · ESTABLE</div>
+        
+        <!-- VISTA 1: FLUJO DIARIO -->
+        <div id="vista-diaria" class="vista activa">
+            <div class="cabecera">
+                <div id="hora">00:00</div>
+                <div id="info-semana">CARGANDO...</div>
+            </div>
+
+            <div class="area-scroll" id="lista-tareas">
+                <!-- Tareas del día -->
+            </div>
+
+            <div class="botones">
+                <button class="btn" onclick="activarSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
+                <button class="btn" onclick="cambiarVista('vista-agenda')">📅</button>
+                <button class="btn" onclick="rotarSemana()">⚙</button>
+            </div>
         </div>
 
-        <div class="tareas" id="lista-tareas">
-            <!-- Tareas dinámicas -->
+        <!-- VISTA 2: AGENDA DE CONGREGACIONES -->
+        <div id="vista-agenda" class="vista">
+            <div style="font-size: 14px; font-weight: bold; color: #ffd060;">AGENDA</div>
+            <div class="area-scroll" id="lista-agenda">
+                <!-- Programación de semanas -->
+            </div>
+            <div class="botones">
+                <button class="btn" onclick="cambiarVista('vista-diaria')">✕</button>
+            </div>
         </div>
 
-        <div class="botones">
-            <!-- Botón SOS con color suave para migrañas -->
-            <button class="btn" onclick="activarSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
-            <button class="btn" onclick="cambiarSemana()">⚙</button>
-        </div>
-
-        <!-- SOS OVERLAY ACTUALIZADO -->
+        <!-- SOS OVERLAY -->
         <div id="sos-overlay" onclick="this.style.display='none'">
-            <div class="sos-icon">⚠</div>
-            <div class="sos-txt">CRISIS</div>
-            <p style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Aviso enviado a Esperanza</p>
+            <div style="font-size: 40px; color: #ff6060;">⚠</div>
+            <div style="font-size: 18px; font-weight: bold;">CRISIS</div>
+            <p style="font-size: 11px; opacity: 0.7; margin-top: 4px;">Esperanza alertada</p>
         </div>
     </div>
 
     <script>
-        // PERSISTENCIA DE DATOS (Super Asistente 360)
-        const STORAGE_KEY = 'asistente_360_benja_v2';
-        let datos = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-            semana: 'visit', 
-            congregacion: 'Cong. Centro',
+        // PERSISTENCIA DE DATOS
+        const DB_KEY = 'asistente_360_agenda_v1';
+        let datos = JSON.parse(localStorage.getItem(DB_KEY)) || {
+            modo: 'visit', // visit, assembly, precursor
+            agenda: [
+                { cong: 'Cong. Centro', tipo: 'visit' },
+                { cong: 'Asamblea Regional', tipo: 'assembly' },
+                { cong: 'Cong. Norte', tipo: 'visit' },
+                { cong: 'Escuela Precursores', tipo: 'precursor' }
+            ],
             tareas: {
-                visit: [
-                    { id: 1, t: 'Revisión Registros', d: false },
-                    { id: 2, t: 'Reunión Ancianos', d: false },
-                    { id: 3, t: 'Salida Campo', d: false }
-                ],
-                assembly: [
-                    { id: 4, t: 'Reunión Oradores', d: false },
-                    { id: 5, t: 'Supervisión Audio', d: false }
-                ],
-                precursor: [
-                    { id: 6, t: 'Revisión Informe', d: false },
-                    { id: 7, t: 'Clase Precursores', d: false }
-                ]
-            }
+                visit: [{id:1, t:'Registros'}, {id:2, t:'Ancianos'}, {id:3, t:'Campo'}],
+                assembly: [{id:4, t:'Oradores'}, {id:5, t:'Logística'}],
+                precursor: [{id:6, t:'Informes'}, {id:7, t:'Clase'}]
+            },
+            completadas: []
         };
 
-        function guardar() { localStorage.setItem(STORAGE_KEY, JSON.stringify(datos)); }
+        function guardar() { localStorage.setItem(DB_KEY, JSON.stringify(datos)); }
 
-        function render() {
+        function cambiarVista(id) {
+            document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+            document.getElementById(id).classList.add('activa');
+            if (id === 'vista-agenda') renderAgenda();
+        }
+
+        function renderDiario() {
             const cont = document.getElementById('lista-tareas');
-            const congEl = document.getElementById('congregacion');
+            const info = document.getElementById('info-semana');
+            const colores = { visit: '#5ce875', assembly: '#7ec8f5', precursor: '#ffd060' };
+            const etiquetas = { visit: 'Visita', assembly: 'Asamblea', precursor: 'Precursores' };
+            
+            const color = colores[datos.modo];
+            info.innerText = `${etiquetas[datos.modo]} - ${datos.agenda[0].cong}`;
+            info.style.color = color;
+
+            cont.innerHTML = datos.tareas[datos.modo].map(tarea => {
+                const esHecho = datos.completadas.includes(tarea.id);
+                return `
+                    <div class="tarjeta ${esHecho ? 'completada' : ''}" 
+                         style="border-left-color: ${esHecho ? '#444' : color}"
+                         onclick="tildar(${tarea.id})">
+                        <div style="width:12px; height:12px; border-radius:50%; border:2px solid ${color}; background:${esHecho ? color : 'transparent'}"></div>
+                        <div>${tarea.t}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAgenda() {
+            const cont = document.getElementById('lista-agenda');
             const colores = { visit: '#5ce875', assembly: '#7ec8f5', precursor: '#ffd060' };
             
-            const colorActual = colores[datos.semana];
-            congEl.innerText = datos.congregacion;
-            congEl.style.color = colorActual;
-
-            cont.innerHTML = datos.tareas[datos.semana].map(tarea => `
-                <div class="item ${tarea.d ? 'listo' : ''}" 
-                     style="border-left-color: ${tarea.d ? '#444' : colorActual}"
-                     onclick="tildar(${tarea.id})">
-                    <div style="width:14px; height:14px; border-radius:50%; border:2px solid ${colorActual}; background:${tarea.d ? colorActual : 'transparent'}"></div>
-                    <div>${tarea.t}</div>
+            cont.innerHTML = datos.agenda.map((item, index) => `
+                <div class="tarjeta" style="border-left-color: ${colores[item.tipo]}; opacity: ${index === 0 ? 1 : 0.6}">
+                    <div style="font-size: 10px; color: ${colores[item.tipo]}">${index === 0 ? 'AHORA' : 'PRÓX.'}</div>
+                    <div style="margin-left: 8px;">${item.cong}</div>
                 </div>
             `).join('');
         }
 
         function tildar(id) {
-            const t = datos.tareas[datos.semana].find(x => x.id === id);
-            t.d = !t.d;
-            if (navigator.vibrate) navigator.vibrate(50);
-            guardar();
-            render();
+            if (datos.completadas.includes(id)) {
+                datos.completadas = datos.completadas.filter(i => i !== id);
+            } else {
+                datos.completadas.push(id);
+            }
+            if (navigator.vibrate) navigator.vibrate(40);
+            guardar(); renderDiario();
         }
 
         function activarSOS() {
-            // Vibración discreta para el usuario
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             document.getElementById('sos-overlay').style.display = 'flex';
         }
 
-        function cambiarSemana() {
+        function rotarSemana() {
             const modos = ['visit', 'assembly', 'precursor'];
-            let actual = modos.indexOf(datos.semana);
-            datos.semana = modos[(actual + 1) % modos.length];
-            guardar();
-            render();
-            if (navigator.vibrate) navigator.vibrate(30);
+            let idx = modos.indexOf(datos.modo);
+            datos.modo = modos[(idx + 1) % modos.length];
+            guardar(); renderDiario();
         }
 
-        function tick() {
+        function actualizarHora() {
+            const d = new Date();
+            document.getElementById('hora').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+        }
+
+        setInterval(actualizarHora, 1000);
+        actualizarHora();
+        renderDiario();
+    </script>
+</body>
+</html>
+
+```
             const d = new Date();
             document.getElementById('hora').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
             document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 8);
