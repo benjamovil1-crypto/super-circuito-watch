@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
-    <title>Asistente 360</title>
+    <title>Asistente 360 - Benjamín</title>
     <style>
-        /* 1. ELIMINAR CUALQUIER MARGEN DEL NAVEGADOR */
+        /* 1. RESET TOTAL PARA EVITAR ZOOM */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body, html { 
@@ -19,83 +19,172 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: Arial, sans-serif;
         }
 
-        /* 2. EL CONTENEDOR RÍGIDO (No se moverá de aquí) */
-        .safe-circle {
-            width: 90vw; /* Usamos casi todo el ancho pero dejamos aire */
-            height: 90vw; 
-            max-width: 320px; /* Tamaño máximo para que no crezca de más */
-            max-height: 320px;
+        /* 2. EL CONTENEDOR CIRCULAR (Basado en el que te funcionó) */
+        .watch-container {
+            width: 310px; /* Tamaño estándar de visualización para Watch 7 */
+            height: 310px;
             border-radius: 50%;
+            border: 2px solid #1e5fa8; /* El anillo azul de la Fase 2 */
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            border: 1px solid #1e5fa8;
-            padding: 15%; /* Margen interno para que las letras no toquen el borde */
-            background: radial-gradient(circle, #060c25 0%, #000 100%);
+            justify-content: space-between;
+            padding: 45px 30px 40px 30px; /* Márgenes para no tocar los bordes */
+            background: radial-gradient(circle, #04081a 0%, #000 100%);
+            box-shadow: inset 0 0 20px rgba(30, 95, 168, 0.4);
         }
 
-        /* 3. RELOJ Y SALUD (Muy compactos) */
-        .top-info { text-align: center; margin-bottom: 5px; }
-        #clock { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        .bpm-tag { font-size: 12px; color: #5ce875; margin-top: 2px; }
+        /* 3. RELOJ Y SALUD (Tamaños fijos) */
+        .header { text-align: center; }
+        #clock { font-size: 26px; font-weight: bold; color: #7ec8f5; }
+        .bpm-info { font-size: 13px; color: #5ce875; margin-top: 2px; font-weight: bold; }
 
-        /* 4. LISTA DE TAREAS (Pequeña y funcional) */
-        .task-list {
+        /* 4. LISTA DE TAREAS (Diseño ultra-simple) */
+        .task-area {
+            flex: 1;
             width: 100%;
-            height: 100px;
             overflow-y: auto;
-            margin: 10px 0;
+            margin: 8px 0;
+            scrollbar-width: none;
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            scrollbar-width: none;
+            gap: 6px;
         }
-        .task-list::-webkit-scrollbar { display: none; }
+        .task-area::-webkit-scrollbar { display: none; }
 
-        .task-card {
-            background: rgba(255,255,255,0.1);
-            padding: 8px;
-            border-radius: 10px;
+        .task-row {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 10px;
+            border-radius: 12px;
             font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            border-left: 3px solid #7ec8f5;
+            gap: 10px;
+            border-left: 4px solid #1e5fa8;
         }
-        .task-card.done { opacity: 0.3; border-left-color: #444; }
+        .task-row.done { opacity: 0.3; border-left-color: #444; }
 
-        /* 5. BOTONES (Abajo pero sin tocar el borde) */
-        .footer-tools { display: flex; gap: 15px; margin-top: 5px; }
+        .check-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            border: 1.5px solid #7ec8f5; flex-shrink: 0;
+        }
+
+        /* 5. BOTONES DE ACCIÓN (En la zona segura) */
+        .footer { display: flex; gap: 15px; }
         .btn {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(255,255,255,0.1); border: 1px solid #444;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(30, 95, 168, 0.2); border: 1px solid #1e5fa8;
             color: #fff; display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
         }
 
-        /* OVERLAYS */
-        #sos-screen {
-            position: fixed; inset: 0; background: #800; z-index: 100;
+        /* PANTALLA DE CRISIS */
+        #sos-overlay {
+            position: fixed; inset: 0; background: #900; z-index: 1000;
             display: none; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="safe-circle" id="main-ui">
-        <div class="top-info">
+    <div class="watch-container" id="app-ui">
+        <!-- CABECERA -->
+        <div class="header">
             <div id="clock">00:00</div>
-            <div class="bpm-tag">❤ <span id="bpm">72</span> BPM</div>
+            <div class="bpm-info">❤ <span id="bpm">72</span> BPM · OK</div>
         </div>
 
-        <div class="task-list" id="tasks">
-            <!-- Se carga por JS -->
+        <!-- TAREAS -->
+        <div class="task-area" id="task-list">
+            <!-- Se genera con JS -->
         </div>
+
+        <!-- ACCIONES -->
+        <div class="footer">
+            <button class="btn" onclick="triggerSOS()" style="color:#ff6060; border-color:#ff6060">⚠</button>
+            <button class="btn" onclick="toggleMigraine()">⚙</button>
+        </div>
+    </div>
+
+    <!-- OVERLAY SOS -->
+    <div id="sos-overlay" onclick="this.style.display='none'">
+        <div style="font-size: 40px;">⚠</div>
+        <div style="font-size: 20px; font-weight: bold; margin-top: 10px;">AVISO ENVIADO</div>
+        <p style="font-size: 14px; margin-top: 5px;">Esperanza ha sido alertada</p>
+    </div>
+
+    <script>
+        // DATOS CON PERSISTENCIA
+        const DB_NAME = 'benjamin_watch_v5';
+        let state = JSON.parse(localStorage.getItem(DB_NAME)) || {
+            m: false,
+            tasks: [
+                { id: 1, t: 'Cita Precursor', d: false },
+                { id: 2, t: 'Salida Campo', d: false },
+                { id: 3, t: 'Pastoreo Glez', d: false }
+            ]
+        };
+
+        function save() { localStorage.setItem(DB_NAME, JSON.stringify(state)); }
+
+        function render() {
+            const list = document.getElementById('task-list');
+            list.innerHTML = state.tasks.map(task => `
+                <div class="task-row ${task.d ? 'done' : ''}" onclick="toggleTask(${task.id})">
+                    <div class="check-dot" style="background:${task.d ? '#7ec8f5' : 'transparent'}"></div>
+                    <div style="${task.d ? 'text-decoration:line-through' : ''}">${task.t}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleTask(id) {
+            const task = state.tasks.find(x => x.id === id);
+            task.d = !task.d;
+            if (navigator.vibrate) navigator.vibrate(40);
+            save(); render();
+        }
+
+        function triggerSOS() {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            document.getElementById('sos-overlay').style.display = 'flex';
+        }
+
+        function toggleMigraine() {
+            state.m = !state.m;
+            document.getElementById('app-ui').style.filter = state.m ? 'sepia(0.8) brightness(0.6)' : 'none';
+            save();
+            alert("Modo Migraña: " + (state.m ? "ON" : "OFF"));
+        }
+
+        function update() {
+            const now = new Date();
+            document.getElementById('clock').innerText = 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 8);
+        }
+
+        setInterval(update, 1000);
+        update(); render();
+        
+        // Cargar estado de migraña al iniciar
+        if (state.m) {
+            document.getElementById('app-ui').style.filter = 'sepia(0.8) brightness(0.6)';
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+</html>
+
+```
 
         <div class="footer-tools">
             <button class="btn" onclick="triggerSOS()" style="color:#ff6060">⚠</button>
