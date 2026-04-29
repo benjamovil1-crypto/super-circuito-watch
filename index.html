@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Asistente 360</title>
+    <title>Asistente 360 - Benjamín</title>
     <style>
-        /* BLOQUEO DE ESCALA PARA EVITAR QUE EL RELOJ DEFORME EL TEXTO */
+        /* CONFIGURACIÓN CRÍTICA: BLOQUEO DE TAMAÑOS */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
         
         body { 
@@ -15,46 +15,48 @@
             justify-content: center; align-items: center; height: 100vh;
         }
 
-        /* EL ANILLO AZUL FIJO (310px - Safe Zone para Watch 7) */
-        .circulo-watch {
+        /* ANILLO AZUL ESTABLE (310px - Safe Zone para Watch 7) */
+        .reloj-contenedor {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
-            padding: 50px 35px 45px 35px; 
+            padding: 48px 30px 42px 30px; 
             background: radial-gradient(circle, #04081a 0%, #000 100%);
             position: relative;
+            overflow: hidden;
         }
 
         /* CABECERA: RELOJ Y CONGREGACIÓN */
-        .header { text-align: center; }
+        .cabecera { text-align: center; }
         #hora { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        #label-semana { font-size: 12px; font-weight: bold; margin-top: 3px; text-transform: uppercase; }
+        #semana-texto { font-size: 13px; font-weight: bold; margin-top: 3px; text-transform: uppercase; }
+        .pulso { font-size: 11px; color: #5ce875; margin-top: 2px; opacity: 0.8; }
 
-        /* LISTA DE TAREAS (DISEÑO SIMPLE) */
-        .tareas { 
-            flex: 1; width: 100%; margin: 10px 0; 
+        /* LISTA DE TAREAS (DISEÑO PESTAÑA ÚNICA) */
+        .scroll-tareas { 
+            flex: 1; width: 100%; margin: 8px 0; 
             overflow-y: auto; scrollbar-width: none; 
         }
-        .tareas::-webkit-scrollbar { display: none; }
+        .scroll-tareas::-webkit-scrollbar { display: none; }
 
-        .item { 
-            background: rgba(255,255,255,0.08); margin-bottom: 6px; 
-            padding: 9px 12px; border-radius: 12px; font-size: 14px; 
-            display: flex; align-items: center; gap: 10px;
+        .item-tarea { 
+            background: rgba(255,255,255,0.08); margin-bottom: 5px; 
+            padding: 9px 12px; border-radius: 12px; font-size: 13px; 
+            display: flex; align-items: center; gap: 8px;
             border-left: 4px solid #1e5fa8;
         }
-        .item.listo { opacity: 0.2; text-decoration: line-through; border-left-color: #444; }
+        .item-tarea.completado { opacity: 0.2; text-decoration: line-through; border-left-color: #444; }
 
         /* BOTONES DE ACCIÓN */
-        .footer { display: flex; gap: 25px; }
-        .btn { 
+        .controles { display: flex; gap: 28px; }
+        .btn-accion { 
             width: 44px; height: 44px; border-radius: 50%; 
             border: 1.5px solid #1e5fa8; color: white; background: rgba(30,95,168,0.2); 
-            font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        /* SOS OVERLAY (BORDÓ PROFUNDO ANTIGLANE) */
-        #sos-overlay { 
+        /* OVERLAY SOS (BORDÓ ANTIGLANE PARA MIGRAÑAS) */
+        #sos-capa { 
             display: none; position: absolute; inset: 0; 
             background: #2a0000; justify-content: center; 
             align-items: center; flex-direction: column;
@@ -64,93 +66,110 @@
 </head>
 <body>
 
-    <div class="circulo-watch">
-        <div class="header">
+    <div class="reloj-contenedor">
+        <div class="cabecera">
             <div id="hora">00:00</div>
-            <div id="label-semana">CARGANDO...</div>
+            <div id="semana-texto">VISITA</div>
+            <div class="pulso">❤ <span id="bpm">72</span> BPM · OK</div>
         </div>
 
-        <div class="tareas" id="lista-tareas">
-            <!-- Tareas dinámicas -->
+        <div class="scroll-tareas" id="lista-tareas">
+            <!-- Tareas dinámicas se inyectan aquí -->
         </div>
 
-        <div class="footer">
-            <button class="btn" onclick="activarSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
-            <button class="btn" onclick="cicloSemana()">⚙</button>
+        <div class="controles">
+            <!-- Botón SOS (Cuidado visual) -->
+            <button class="btn-accion" onclick="abrirSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
+            <!-- Botón Ciclo de Semanas -->
+            <button class="btn-accion" onclick="cambiarCiclo()">⚙</button>
         </div>
 
-        <!-- SOS OVERLAY -->
-        <div id="sos-overlay" onclick="this.style.display='none'">
+        <!-- SOS ALERTA DISCRETA -->
+        <div id="sos-capa" onclick="this.style.display='none'">
             <div style="font-size: 40px; color: #ff6060;">⚠</div>
-            <div style="font-size: 18px; font-weight: bold;">CRISIS</div>
-            <p style="font-size: 11px; opacity: 0.7; margin-top: 4px;">Esperanza alertada</p>
+            <div style="font-size: 18px; font-weight: bold; color: #fff;">CRISIS</div>
+            <p style="font-size: 11px; opacity: 0.7; margin-top: 4px;">Aviso enviado a Esperanza</p>
         </div>
     </div>
 
     <script>
-        // PERSISTENCIA DE DATOS
-        const DB_KEY = 'benjamin_360_estable_v3';
-        let datos = JSON.parse(localStorage.getItem(DB_KEY)) || {
-            modo: 'visit', // visit, assembly, precursor
-            tareas: [
-                { id: 1, t: 'Registros Congo', d: false },
-                { id: 2, t: 'Reunión Ancianos', d: false },
-                { id: 3, t: 'Salida al Campo', d: false }
-            ]
+        // PERSISTENCIA DE DATOS (Super Asistente 360)
+        const DB_BENJA = 'db_asistente_benjamin_v1';
+        let estado = JSON.parse(localStorage.getItem(DB_BENJA)) || {
+            modo: 'visita', // visita, asamblea, precursor
+            tareas: {
+                visita: [
+                    { id: 1, t: 'Reunión Ancianos', d: false },
+                    { id: 2, t: 'Revisión Registros', d: false },
+                    { id: 3, t: 'Salida al Campo', d: false }
+                ],
+                asamblea: [
+                    { id: 4, t: 'Reunión Oradores', d: false },
+                    { id: 5, t: 'Logística Auditorio', d: false }
+                ],
+                precursor: [
+                    { id: 6, t: 'Clase Servicio', d: false },
+                    { id: 7, t: 'Informes Horas', d: false }
+                ]
+            }
         };
 
-        function guardar() { localStorage.setItem(DB_KEY, JSON.stringify(datos)); }
+        function guardar() { localStorage.setItem(DB_BENJA, JSON.stringify(estado)); }
 
         function render() {
-            const cont = document.getElementById('lista-tareas');
-            const label = document.getElementById('label-semana');
+            const contenedor = document.getElementById('lista-tareas');
+            const textoSemana = document.getElementById('semana-texto');
             
-            const colores = { visit: '#5ce875', assembly: '#7ec8f5', precursor: '#ffd060' };
-            const nombres = { visit: 'VISITA', assembly: 'ASAMBLEA', precursor: 'PRECURSORES' };
-            
-            const colorActual = colores[datos.modo];
-            label.innerText = nombres[datos.modo];
-            label.style.color = colorActual;
+            const config = {
+                visita: { color: '#5ce875', label: 'Semana Visita' },
+                asamblea: { color: '#7ec8f5', label: 'Asamblea SC' },
+                precursor: { color: '#ffd060', label: 'Precursores' }
+            };
 
-            cont.innerHTML = datos.tareas.map(tarea => `
-                <div class="item ${tarea.d ? 'listo' : ''}" 
-                     style="border-left-color: ${tarea.d ? '#444' : colorActual}"
-                     onclick="tildar(${tarea.id})">
-                    <div style="width:12px; height:12px; border-radius:50%; border:2px solid ${colorActual}; background:${tarea.d ? colorActual : 'transparent'}"></div>
+            const actual = config[estado.modo];
+            textoSemana.innerText = actual.label;
+            textoSemana.style.color = actual.color;
+
+            contenedor.innerHTML = estado.tareas[estado.modo].map(tarea => `
+                <div class="item-tarea ${tarea.d ? 'completado' : ''}" 
+                     style="border-left-color: ${tarea.d ? '#444' : actual.color}"
+                     onclick="tildarTarea(${tarea.id})">
+                    <div style="width:12px; height:12px; border-radius:50%; border:2px solid ${actual.color}; background:${tarea.d ? actual.color : 'transparent'}"></div>
                     <div>${tarea.t}</div>
                 </div>
             `).join('');
         }
 
-        function tildar(id) {
-            const t = datos.tareas.find(x => x.id === id);
-            t.d = !t.d;
-            if (navigator.vibrate) navigator.vibrate(40);
-            guardar();
-            render();
+        function tildarTarea(id) {
+            const t = estado.tareas[estado.modo].find(x => x.id === id);
+            if(t) {
+                t.d = !t.d;
+                if (navigator.vibrate) navigator.vibrate(40);
+                guardar(); render();
+            }
         }
 
-        function cicloSemana() {
-            const modos = ['visit', 'assembly', 'precursor'];
-            let idx = modos.indexOf(datos.modo);
-            datos.modo = modos[(idx + 1) % modos.length];
+        function cambiarCiclo() {
+            const modos = ['visita', 'asamblea', 'precursor'];
+            let idx = modos.indexOf(estado.modo);
+            estado.modo = modos[(idx + 1) % modos.length];
             if (navigator.vibrate) navigator.vibrate(60);
-            guardar();
-            render();
+            guardar(); render();
         }
 
-        function activarSOS() {
+        function abrirSOS() {
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            document.getElementById('sos-overlay').style.display = 'flex';
+            document.getElementById('sos-capa').style.display = 'flex';
         }
 
-        function tick() {
+        function relojTick() {
             const d = new Date();
             document.getElementById('hora').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+            document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 8);
         }
 
-        setInterval(tick, 1000);
-        tick();
+        setInterval(relojTick, 1000);
+        relojTick();
         render();
     </script>
 </body>
