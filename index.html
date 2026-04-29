@@ -4,66 +4,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Asistente 360 - Benjamín</title>
+    <title>Asistente 360 - Flujo</title>
     <style>
-        /* CONFIGURACIÓN ANTIFALLOS PARA WATCH 7 */
+        /* CONFIGURACIÓN CRÍTICA: BLOQUEO DE TAMAÑOS PARA EVITAR ZOOM */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
         
         body { 
             background: #000; color: #fff; margin: 0; 
-            font-family: Arial, sans-serif; display: flex; 
+            font-family: 'Segoe UI', Arial, sans-serif; display: flex; 
             justify-content: center; align-items: center; height: 100vh;
         }
 
-        /* ANILLO AZUL ESTABLE (310px - Safe Zone verificada) */
+        /* ANILLO AZUL ESTABLE (310px - Safe Zone para Watch 7) */
         .reloj-shell {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
-            padding: 48px 32px 42px 32px; 
+            padding: 45px 32px 35px 32px; 
             background: radial-gradient(circle, #04081a 0%, #000 100%);
             position: relative;
             overflow: hidden;
         }
 
-        /* HEADER: RELOJ Y SALUD INTEGRADA */
-        .header { text-align: center; z-index: 5; }
-        #clock { font-size: 30px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        #cong-label { font-size: 13px; font-weight: bold; margin-top: 3px; text-transform: uppercase; }
+        /* CABECERA: RELOJ Y PESTAÑA ACTUAL */
+        .header { text-align: center; width: 100%; z-index: 5; }
+        #clock { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
         
-        /* TARJETA DE SALUD INTERACTIVA */
-        .health-card { 
-            font-size: 11px; color: #5ce875; margin-top: 2px; 
-            background: rgba(92, 232, 117, 0.1); 
+        /* INDICADOR DE PESTAÑA (Reflejo de la APK) */
+        .tab-indicator { 
+            font-size: 12px; font-weight: bold; margin-top: 4px; 
             padding: 2px 8px; border-radius: 10px;
-            display: inline-flex; align-items: center; gap: 4px;
+            display: inline-block; text-transform: uppercase;
         }
 
-        /* LISTA DE TAREAS DINÁMICAS */
-        .task-container { 
+        /* FLUJO DE TAREAS (SCROLLABLE) */
+        .flow-container { 
             flex: 1; width: 100%; margin: 8px 0; 
             overflow-y: auto; scrollbar-width: none; 
             z-index: 5;
         }
-        .task-container::-webkit-scrollbar { display: none; }
+        .flow-container::-webkit-scrollbar { display: none; }
 
-        .task-item { 
+        .task-card { 
             background: rgba(255,255,255,0.08); margin-bottom: 5px; 
-            padding: 10px 12px; border-radius: 14px; font-size: 14px; 
+            padding: 9px 12px; border-radius: 14px; font-size: 13.5px; 
             display: flex; align-items: center; gap: 10px;
             border-left: 4px solid #1e5fa8;
+            transition: opacity 0.2s;
         }
-        .task-item.done { opacity: 0.2; text-decoration: line-through; border-left-color: #444; }
+        .task-card.done { opacity: 0.25; text-decoration: line-through; border-left-color: #444; }
 
-        /* BOTONES DE ACCIÓN (SOS Y AJUSTES) */
-        .footer-btns { display: flex; gap: 28px; z-index: 5; }
-        .btn-action { 
+        .check-box {
+            width: 14px; height: 14px; border-radius: 4px;
+            border: 1.5px solid rgba(255,255,255,0.4);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* BOTONES (SOS Y CAMBIO DE PESTAÑA) */
+        .footer-tools { display: flex; gap: 28px; z-index: 5; margin-bottom: 5px; }
+        .btn-tool { 
             width: 44px; height: 44px; border-radius: 50%; 
             border: 1.5px solid #1e5fa8; color: white; background: rgba(30,95,168,0.2); 
-            font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; display: flex; align-items: center; justify-content: center;
         }
 
-        /* SOS: BORDÓ OSCURO (ANTIMIGRAÑA) */
+        /* SOS: BORDÓ OSCURO ANTI-MIGRAÑA */
         #sos-screen { 
             display: none; position: absolute; inset: 0; 
             background: #2a0000; justify-content: center; 
@@ -74,97 +80,102 @@
 </head>
 <body>
 
-    <div class="reloj-shell" id="app-frame">
-        <!-- HEADER -->
+    <div class="reloj-shell">
+        <!-- CABECERA -->
         <div class="header">
             <div id="clock">00:00</div>
-            <div id="cong-label">CENTRO</div>
-            <div class="health-card" onclick="alert('Estado: Óptimo')">
-                <span>❤</span> <span id="bpm">72</span> BPM
-            </div>
+            <div id="tab-label" class="tab-indicator">VISITA</div>
         </div>
 
-        <!-- LISTA DE TRABAJO -->
-        <div class="task-container" id="tasks">
-            <!-- Cargado por Script -->
+        <!-- FLUJO DE TRABAJO (Pestañas de la APK) -->
+        <div class="flow-container" id="task-list">
+            <!-- Cargado por JS según la pestaña de la APK seleccionada -->
         </div>
 
         <!-- ACCIONES -->
-        <div class="footer-btns">
-            <button class="btn-action" onclick="showSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
-            <button class="btn-action" onclick="cycleMode()">⚙</button>
+        <div class="footer-tools">
+            <!-- Alerta SOS Suave -->
+            <button class="btn-tool" onclick="showSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
+            <!-- Botón para rotar entre las pestañas de la APK -->
+            <button class="btn-tool" onclick="cycleTabs()">⚙</button>
         </div>
 
-        <!-- SOS OVERLAY -->
+        <!-- OVERLAY SOS -->
         <div id="sos-screen" onclick="this.style.display='none'">
-            <div style="font-size: 45px; color: #ff6060;">⚠</div>
-            <div style="font-size: 20px; font-weight: bold;">CRISIS</div>
-            <p style="font-size: 12px; opacity: 0.8; margin-top: 5px;">Esperanza notificada</p>
+            <div style="font-size: 40px; color: #ff6060;">⚠</div>
+            <div style="font-size: 18px; font-weight: bold;">CRISIS</div>
+            <p style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Esperanza notificada</p>
         </div>
     </div>
 
     <script>
-        // MOTOR DE PERSISTENCIA (Super Asistente 360)
-        const DB_KEY = 'asistente_360_benja_v5';
-        let state = JSON.parse(localStorage.getItem(DB_KEY)) || {
-            mode: 'visit', // visit, assembly, precursor
-            congregation: 'Cong. Centro',
+        // DATOS QUE REFLEJAN LAS PESTAÑAS DE LA APK
+        const STORAGE_ID = 'benjamin_workflow_360';
+        let state = JSON.parse(localStorage.getItem(STORAGE_ID)) || {
+            currentTab: 'visit', // visit, assembly, precursor
             tasks: {
                 visit: [
-                    { id: 1, t: 'Revisión de Registros', d: false },
-                    { id: 2, t: 'Reunión Ancianos', d: false },
-                    { id: 3, t: 'Salida al Campo', d: false }
+                    { id: 101, t: 'Revisar Registros', d: false },
+                    { id: 102, t: 'Reunión Ancianos', d: false },
+                    { id: 103, t: 'Salida al Campo', d: false },
+                    { id: 104, t: 'Discurso Público', d: false }
                 ],
                 assembly: [
-                    { id: 4, t: 'Discurso SC (Cian)', d: false },
-                    { id: 5, t: 'Reunión Oradores', d: false }
+                    { id: 201, t: 'Reunión Oradores', d: false },
+                    { id: 202, t: 'Revisión Audio', d: false },
+                    { id: 203, t: 'Cierre de Cuentas', d: false }
                 ],
                 precursor: [
-                    { id: 6, t: 'Clase Servicio', d: false },
-                    { id: 7, t: 'Informes de Horas', d: false }
+                    { id: 301, t: 'Clase de Servicio', d: false },
+                    { id: 302, t: 'Revisión Horas', d: false },
+                    { id: 303, t: 'Entrevista Prep.', d: false }
                 ]
             }
         };
 
-        function save() { localStorage.setItem(DB_KEY, JSON.stringify(state)); }
+        function save() { localStorage.setItem(STORAGE_ID, JSON.stringify(state)); }
 
         function render() {
-            const container = document.getElementById('tasks');
-            const congEl = document.getElementById('cong-label');
+            const container = document.getElementById('task-list');
+            const label = document.getElementById('tab-label');
             
             const config = {
-                visit: { color: '#5ce875', label: 'Visita' },
-                assembly: { color: '#7ec8f5', label: 'Asamblea' },
-                precursor: { color: '#ffd060', label: 'Precursores' }
+                visit: { color: '#5ce875', txt: 'Pestaña: Visita' },
+                assembly: { color: '#7ec8f5', txt: 'Pestaña: Asamblea' },
+                precursor: { color: '#ffd060', txt: 'Pestaña: Precursores' }
             };
 
-            const actual = config[state.mode];
-            congEl.innerText = `${actual.label}: ${state.congregation}`;
-            congEl.style.color = actual.color;
+            const active = config[state.currentTab];
+            label.innerText = active.txt;
+            label.style.background = `${active.color}22`; // Color suave de fondo
+            label.style.color = active.color;
 
-            container.innerHTML = state.tasks[state.mode].map(task => `
-                <div class="task-item ${task.d ? 'done' : ''}" 
-                     style="border-left-color: ${task.d ? '#444' : actual.color}"
-                     onclick="toggleTask(${task.id})">
-                    <div style="width:12px; height:12px; border-radius:50%; border:2px solid ${actual.color}; background:${task.d ? actual.color : 'transparent'}"></div>
+            container.innerHTML = state.tasks[state.currentTab].map(task => `
+                <div class="task-card ${task.d ? 'done' : ''}" 
+                     style="border-left-color: ${task.d ? '#444' : active.color}"
+                     onclick="toggleCheck(${task.id})">
+                    <div class="check-box" style="background:${task.d ? active.color : 'transparent'}; border-color:${active.color}">
+                        ${task.d ? '<span style="font-size:10px; color:#000;">✓</span>' : ''}
+                    </div>
                     <div>${task.t}</div>
                 </div>
             `).join('');
         }
 
-        function toggleTask(id) {
-            const t = state.tasks[state.mode].find(x => x.id === id);
-            if(t) {
-                t.d = !t.d;
-                if (navigator.vibrate) navigator.vibrate(45);
+        function toggleCheck(id) {
+            const list = state.tasks[state.currentTab];
+            const task = list.find(t => t.id === id);
+            if(task) {
+                task.d = !task.d;
+                if (navigator.vibrate) navigator.vibrate(40);
                 save(); render();
             }
         }
 
-        function cycleMode() {
-            const modes = ['visit', 'assembly', 'precursor'];
-            let idx = modes.indexOf(state.mode);
-            state.mode = modes[(idx + 1) % modes.length];
+        function cycleTabs() {
+            const order = ['visit', 'assembly', 'precursor'];
+            let idx = order.indexOf(state.currentTab);
+            state.currentTab = order[(idx + 1) % order.length];
             if (navigator.vibrate) navigator.vibrate(60);
             save(); render();
         }
@@ -177,7 +188,6 @@
         function updateClock() {
             const d = new Date();
             document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
-            document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 8);
         }
 
         setInterval(updateClock, 1000);
