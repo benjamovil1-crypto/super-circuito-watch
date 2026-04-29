@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Asistente 360 - Flujo</title>
+    <title>Ecosistema Benjamín 360</title>
     <style>
-        /* CONFIGURACIÓN CRÍTICA: BLOQUEO DE TAMAÑOS PARA EVITAR ZOOM */
+        /* CONFIGURACIÓN CRÍTICA: BLOQUEO DE ESCALA */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
         
         body { 
@@ -15,183 +15,193 @@
             justify-content: center; align-items: center; height: 100vh;
         }
 
-        /* ANILLO AZUL ESTABLE (310px - Safe Zone para Watch 7) */
-        .reloj-shell {
+        /* ANILLO SEGURO (310px - Safe Zone para Watch 7) */
+        .watch-shell {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
-            padding: 45px 32px 35px 32px; 
+            padding: 48px 32px 35px 32px; 
             background: radial-gradient(circle, #04081a 0%, #000 100%);
             position: relative;
             overflow: hidden;
         }
 
-        /* CABECERA: RELOJ Y PESTAÑA ACTUAL */
-        .header { text-align: center; width: 100%; z-index: 5; }
+        /* CABECERA UNIFICADA */
+        .header { text-align: center; width: 100%; z-index: 10; }
         #clock { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        
-        /* INDICADOR DE PESTAÑA (Reflejo de la APK) */
-        .tab-indicator { 
-            font-size: 12px; font-weight: bold; margin-top: 4px; 
-            padding: 2px 8px; border-radius: 10px;
-            display: inline-block; text-transform: uppercase;
+        #cong-info { font-size: 11px; font-weight: bold; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-pill { 
+            display: inline-block; font-size: 9px; padding: 1px 6px; 
+            border-radius: 8px; margin-top: 3px; font-weight: 800;
         }
 
-        /* FLUJO DE TAREAS (SCROLLABLE) */
-        .flow-container { 
+        /* LISTA ÚNICA DE FLUJO (CircuitoApp + Asistente 360) */
+        .unified-flow { 
             flex: 1; width: 100%; margin: 8px 0; 
             overflow-y: auto; scrollbar-width: none; 
             z-index: 5;
         }
-        .flow-container::-webkit-scrollbar { display: none; }
+        .unified-flow::-webkit-scrollbar { display: none; }
 
         .task-card { 
-            background: rgba(255,255,255,0.08); margin-bottom: 5px; 
-            padding: 9px 12px; border-radius: 14px; font-size: 13.5px; 
-            display: flex; align-items: center; gap: 10px;
-            border-left: 4px solid #1e5fa8;
-            transition: opacity 0.2s;
+            background: rgba(255,255,255,0.06); margin-bottom: 5px; 
+            padding: 9px 12px; border-radius: 12px; font-size: 13px; 
+            display: flex; align-items: center; gap: 8px;
+            border-left: 4px solid #444;
+            transition: all 0.3s ease;
         }
-        .task-card.done { opacity: 0.25; text-decoration: line-through; border-left-color: #444; }
+        .task-card.done { opacity: 0.2; text-decoration: line-through; border-left-color: #222 !important; }
+        
+        .source-tag { font-size: 8px; opacity: 0.5; margin-top: 1px; display: block; }
 
-        .check-box {
-            width: 14px; height: 14px; border-radius: 4px;
-            border: 1.5px solid rgba(255,255,255,0.4);
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-
-        /* BOTONES (SOS Y CAMBIO DE PESTAÑA) */
-        .footer-tools { display: flex; gap: 28px; z-index: 5; margin-bottom: 5px; }
-        .btn-tool { 
-            width: 44px; height: 44px; border-radius: 50%; 
+        /* FOOTER */
+        .footer { display: flex; gap: 25px; z-index: 10; margin-bottom: 5px; }
+        .btn-action { 
+            width: 42px; height: 42px; border-radius: 50%; 
             border: 1.5px solid #1e5fa8; color: white; background: rgba(30,95,168,0.2); 
             font-size: 18px; display: flex; align-items: center; justify-content: center;
         }
 
-        /* SOS: BORDÓ OSCURO ANTI-MIGRAÑA */
-        #sos-screen { 
+        /* SOS BORDÓ (ANTIMIGRAÑA) */
+        #sos-overlay { 
             display: none; position: absolute; inset: 0; 
             background: #2a0000; justify-content: center; 
             align-items: center; flex-direction: column;
-            border-radius: 50%; text-align: center; z-index: 20;
+            border-radius: 50%; text-align: center; z-index: 100;
         }
     </style>
 </head>
 <body>
 
-    <div class="reloj-shell">
-        <!-- CABECERA -->
+    <div class="watch-shell">
+        <!-- CABECERA INTELIGENTE -->
         <div class="header">
             <div id="clock">00:00</div>
-            <div id="tab-label" class="tab-indicator">VISITA</div>
+            <div id="cong-info" style="color: #ffd060;">CONG. EJEMPLO</div>
+            <div id="week-pill" class="status-pill">DETECTANDO...</div>
         </div>
 
-        <!-- FLUJO DE TRABAJO (Pestañas de la APK) -->
-        <div class="flow-container" id="task-list">
-            <!-- Cargado por JS según la pestaña de la APK seleccionada -->
+        <!-- FLUJO UNIFICADO -->
+        <div class="unified-flow" id="main-flow">
+            <!-- Aquí se mezclan tareas de CircuitoApp y Asistente 360 -->
         </div>
 
         <!-- ACCIONES -->
-        <div class="footer-tools">
-            <!-- Alerta SOS Suave -->
-            <button class="btn-tool" onclick="showSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
-            <!-- Botón para rotar entre las pestañas de la APK -->
-            <button class="btn-tool" onclick="cycleTabs()">⚙</button>
+        <div class="footer">
+            <button class="btn-action" onclick="showSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
+            <button class="btn-action" onclick="refreshData()">🔄</button>
         </div>
 
         <!-- OVERLAY SOS -->
-        <div id="sos-screen" onclick="this.style.display='none'">
+        <div id="sos-overlay" onclick="this.style.display='none'">
             <div style="font-size: 40px; color: #ff6060;">⚠</div>
             <div style="font-size: 18px; font-weight: bold;">CRISIS</div>
-            <p style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Esperanza notificada</p>
+            <p style="font-size: 11px; opacity: 0.7; margin-top: 4px;">Esperanza alertada</p>
         </div>
     </div>
 
     <script>
-        // DATOS QUE REFLEJAN LAS PESTAÑAS DE LA APK
-        const STORAGE_ID = 'benjamin_workflow_360';
-        let state = JSON.parse(localStorage.getItem(STORAGE_ID)) || {
-            currentTab: 'visit', // visit, assembly, precursor
-            tasks: {
-                visit: [
-                    { id: 101, t: 'Revisar Registros', d: false },
-                    { id: 102, t: 'Reunión Ancianos', d: false },
-                    { id: 103, t: 'Salida al Campo', d: false },
-                    { id: 104, t: 'Discurso Público', d: false }
-                ],
-                assembly: [
-                    { id: 201, t: 'Reunión Oradores', d: false },
-                    { id: 202, t: 'Revisión Audio', d: false },
-                    { id: 203, t: 'Cierre de Cuentas', d: false }
-                ],
-                precursor: [
-                    { id: 301, t: 'Clase de Servicio', d: false },
-                    { id: 302, t: 'Revisión Horas', d: false },
-                    { id: 303, t: 'Entrevista Prep.', d: false }
-                ]
-            }
+        // PROGRAMACIÓN DE EJEMPLO (Esto simula los datos de tu calendario)
+        // En una implementación real, esto se leería de tu base de datos de Google/Samsung
+        const SCHEDULE = [
+            { start: '2024-03-01', end: '2024-03-07', cong: 'Cong. Centro', type: 'visit' },
+            { start: '2024-03-08', end: '2024-03-14', cong: 'Asamblea Regional', type: 'assembly' },
+            { start: '2024-03-15', end: '2024-03-21', cong: 'Cong. Norte', type: 'precursor' }
+        ];
+
+        const STORAGE_KEY = 'benjamin_unified_v1';
+        let state = JSON.parse(localStorage.getItem(STORAGE_ID = STORAGE_KEY)) || {
+            doneIds: []
         };
 
-        function save() { localStorage.setItem(STORAGE_ID, JSON.stringify(state)); }
+        function getActiveWeek() {
+            const today = new Date();
+            // Para propósitos de demo, si no hay match, devolvemos 'visit' por defecto
+            const match = SCHEDULE.find(s => {
+                const start = new Date(s.start);
+                const end = new Date(s.end);
+                return today >= start && today <= end;
+            });
+            return match || { type: 'visit', cong: 'Sin Asignación' };
+        }
+
+        function getTasks(type) {
+            const circuitTasks = {
+                visit: ['Revisar Registros', 'Reunión Ancianos', 'Salida al Campo'],
+                assembly: ['Reunión Oradores', 'Logística Auditorio', 'Cierre Cuentas'],
+                precursor: ['Clase Servicio', 'Revisión Informes']
+            };
+            const assistantTasks = ['Tomar Agua', 'Control Pulso', 'Breve Descanso'];
+            
+            return [
+                ...circuitTasks[type].map(t => ({ t, src: 'CircuitoApp' })),
+                ...assistantTasks.map(t => ({ t, src: 'Asistente 360' }))
+            ];
+        }
 
         function render() {
-            const container = document.getElementById('task-list');
-            const label = document.getElementById('tab-label');
+            const flow = document.getElementById('main-flow');
+            const pill = document.getElementById('week-pill');
+            const cong = document.getElementById('cong-info');
             
+            const active = getActiveWeek();
             const config = {
-                visit: { color: '#5ce875', txt: 'Pestaña: Visita' },
-                assembly: { color: '#7ec8f5', txt: 'Pestaña: Asamblea' },
-                precursor: { color: '#ffd060', txt: 'Pestaña: Precursores' }
+                visit: { color: '#5ce875', label: 'Semana de Visita' },
+                assembly: { color: '#7ec8f5', label: 'Semana de Asamblea' },
+                precursor: { color: '#ffd060', label: 'Semana Precursores' }
             };
 
-            const active = config[state.currentTab];
-            label.innerText = active.txt;
-            label.style.background = `${active.color}22`; // Color suave de fondo
-            label.style.color = active.color;
+            const ui = config[active.type];
+            cong.innerText = active.cong;
+            pill.innerText = ui.label;
+            pill.style.background = ui.color;
+            pill.style.color = '#000';
 
-            container.innerHTML = state.tasks[state.currentTab].map(task => `
-                <div class="task-card ${task.d ? 'done' : ''}" 
-                     style="border-left-color: ${task.d ? '#444' : active.color}"
-                     onclick="toggleCheck(${task.id})">
-                    <div class="check-box" style="background:${task.d ? active.color : 'transparent'}; border-color:${active.color}">
-                        ${task.d ? '<span style="font-size:10px; color:#000;">✓</span>' : ''}
+            const tasks = getTasks(active.type);
+            flow.innerHTML = tasks.map((task, idx) => {
+                const isDone = state.doneIds.includes(`${active.type}-${idx}`);
+                return `
+                    <div class="task-card ${isDone ? 'done' : ''}" 
+                         style="border-left-color: ${ui.color}"
+                         onclick="toggleTask('${active.type}-${idx}')">
+                        <div style="flex:1">
+                            <span class="source-tag">${task.src}</span>
+                            <span>${task.t}</span>
+                        </div>
+                        <div style="width:14px; height:14px; border-radius:50%; border:1.5px solid ${ui.color}; background:${isDone ? ui.color : 'transparent'}"></div>
                     </div>
-                    <div>${task.t}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        function toggleCheck(id) {
-            const list = state.tasks[state.currentTab];
-            const task = list.find(t => t.id === id);
-            if(task) {
-                task.d = !task.d;
+        function toggleTask(id) {
+            if(state.doneIds.includes(id)) {
+                state.doneIds = state.doneIds.filter(i => i !== id);
+            } else {
+                state.doneIds.push(id);
                 if (navigator.vibrate) navigator.vibrate(40);
-                save(); render();
             }
-        }
-
-        function cycleTabs() {
-            const order = ['visit', 'assembly', 'precursor'];
-            let idx = order.indexOf(state.currentTab);
-            state.currentTab = order[(idx + 1) % order.length];
-            if (navigator.vibrate) navigator.vibrate(60);
-            save(); render();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            render();
         }
 
         function showSOS() {
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            document.getElementById('sos-screen').style.display = 'flex';
+            document.getElementById('sos-overlay').style.display = 'flex';
         }
 
-        function updateClock() {
+        function refreshData() {
+            if (navigator.vibrate) navigator.vibrate(60);
+            render();
+        }
+
+        function tick() {
             const d = new Date();
             document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
         }
 
-        setInterval(updateClock, 1000);
-        updateClock();
+        setInterval(tick, 1000);
+        tick();
         render();
     </script>
 </body>
