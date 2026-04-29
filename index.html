@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Asistente 360 - Benjamín</title>
     <style>
-        /* CONFIGURACIÓN CRÍTICA: BLOQUEO DE TAMAÑOS */
+        /* CONFIGURACIÓN ANTIFALLOS PARA WATCH 7 */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
         
         body { 
@@ -15,161 +15,173 @@
             justify-content: center; align-items: center; height: 100vh;
         }
 
-        /* ANILLO AZUL ESTABLE (310px - Safe Zone para Watch 7) */
-        .reloj-contenedor {
+        /* ANILLO AZUL ESTABLE (310px - Safe Zone verificada) */
+        .reloj-shell {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
-            padding: 48px 30px 42px 30px; 
+            padding: 48px 32px 42px 32px; 
             background: radial-gradient(circle, #04081a 0%, #000 100%);
             position: relative;
             overflow: hidden;
         }
 
-        /* CABECERA: RELOJ Y CONGREGACIÓN */
-        .cabecera { text-align: center; }
-        #hora { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        #semana-texto { font-size: 13px; font-weight: bold; margin-top: 3px; text-transform: uppercase; }
-        .pulso { font-size: 11px; color: #5ce875; margin-top: 2px; opacity: 0.8; }
+        /* HEADER: RELOJ Y SALUD INTEGRADA */
+        .header { text-align: center; z-index: 5; }
+        #clock { font-size: 30px; font-weight: bold; color: #7ec8f5; line-height: 1; }
+        #cong-label { font-size: 13px; font-weight: bold; margin-top: 3px; text-transform: uppercase; }
+        
+        /* TARJETA DE SALUD INTERACTIVA */
+        .health-card { 
+            font-size: 11px; color: #5ce875; margin-top: 2px; 
+            background: rgba(92, 232, 117, 0.1); 
+            padding: 2px 8px; border-radius: 10px;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
 
-        /* LISTA DE TAREAS (DISEÑO PESTAÑA ÚNICA) */
-        .scroll-tareas { 
+        /* LISTA DE TAREAS DINÁMICAS */
+        .task-container { 
             flex: 1; width: 100%; margin: 8px 0; 
             overflow-y: auto; scrollbar-width: none; 
+            z-index: 5;
         }
-        .scroll-tareas::-webkit-scrollbar { display: none; }
+        .task-container::-webkit-scrollbar { display: none; }
 
-        .item-tarea { 
+        .task-item { 
             background: rgba(255,255,255,0.08); margin-bottom: 5px; 
-            padding: 9px 12px; border-radius: 12px; font-size: 13px; 
-            display: flex; align-items: center; gap: 8px;
+            padding: 10px 12px; border-radius: 14px; font-size: 14px; 
+            display: flex; align-items: center; gap: 10px;
             border-left: 4px solid #1e5fa8;
         }
-        .item-tarea.completado { opacity: 0.2; text-decoration: line-through; border-left-color: #444; }
+        .task-item.done { opacity: 0.2; text-decoration: line-through; border-left-color: #444; }
 
-        /* BOTONES DE ACCIÓN */
-        .controles { display: flex; gap: 28px; }
-        .btn-accion { 
+        /* BOTONES DE ACCIÓN (SOS Y AJUSTES) */
+        .footer-btns { display: flex; gap: 28px; z-index: 5; }
+        .btn-action { 
             width: 44px; height: 44px; border-radius: 50%; 
             border: 1.5px solid #1e5fa8; color: white; background: rgba(30,95,168,0.2); 
-            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        /* OVERLAY SOS (BORDÓ ANTIGLANE PARA MIGRAÑAS) */
-        #sos-capa { 
+        /* SOS: BORDÓ OSCURO (ANTIMIGRAÑA) */
+        #sos-screen { 
             display: none; position: absolute; inset: 0; 
             background: #2a0000; justify-content: center; 
             align-items: center; flex-direction: column;
-            border-radius: 50%; text-align: center; z-index: 100;
+            border-radius: 50%; text-align: center; z-index: 20;
         }
     </style>
 </head>
 <body>
 
-    <div class="reloj-contenedor">
-        <div class="cabecera">
-            <div id="hora">00:00</div>
-            <div id="semana-texto">VISITA</div>
-            <div class="pulso">❤ <span id="bpm">72</span> BPM · OK</div>
+    <div class="reloj-shell" id="app-frame">
+        <!-- HEADER -->
+        <div class="header">
+            <div id="clock">00:00</div>
+            <div id="cong-label">CENTRO</div>
+            <div class="health-card" onclick="alert('Estado: Óptimo')">
+                <span>❤</span> <span id="bpm">72</span> BPM
+            </div>
         </div>
 
-        <div class="scroll-tareas" id="lista-tareas">
-            <!-- Tareas dinámicas se inyectan aquí -->
+        <!-- LISTA DE TRABAJO -->
+        <div class="task-container" id="tasks">
+            <!-- Cargado por Script -->
         </div>
 
-        <div class="controles">
-            <!-- Botón SOS (Cuidado visual) -->
-            <button class="btn-accion" onclick="abrirSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
-            <!-- Botón Ciclo de Semanas -->
-            <button class="btn-accion" onclick="cambiarCiclo()">⚙</button>
+        <!-- ACCIONES -->
+        <div class="footer-btns">
+            <button class="btn-action" onclick="showSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
+            <button class="btn-action" onclick="cycleMode()">⚙</button>
         </div>
 
-        <!-- SOS ALERTA DISCRETA -->
-        <div id="sos-capa" onclick="this.style.display='none'">
-            <div style="font-size: 40px; color: #ff6060;">⚠</div>
-            <div style="font-size: 18px; font-weight: bold; color: #fff;">CRISIS</div>
-            <p style="font-size: 11px; opacity: 0.7; margin-top: 4px;">Aviso enviado a Esperanza</p>
+        <!-- SOS OVERLAY -->
+        <div id="sos-screen" onclick="this.style.display='none'">
+            <div style="font-size: 45px; color: #ff6060;">⚠</div>
+            <div style="font-size: 20px; font-weight: bold;">CRISIS</div>
+            <p style="font-size: 12px; opacity: 0.8; margin-top: 5px;">Esperanza notificada</p>
         </div>
     </div>
 
     <script>
-        // PERSISTENCIA DE DATOS (Super Asistente 360)
-        const DB_BENJA = 'db_asistente_benjamin_v1';
-        let estado = JSON.parse(localStorage.getItem(DB_BENJA)) || {
-            modo: 'visita', // visita, asamblea, precursor
-            tareas: {
-                visita: [
-                    { id: 1, t: 'Reunión Ancianos', d: false },
-                    { id: 2, t: 'Revisión Registros', d: false },
+        // MOTOR DE PERSISTENCIA (Super Asistente 360)
+        const DB_KEY = 'asistente_360_benja_v5';
+        let state = JSON.parse(localStorage.getItem(DB_KEY)) || {
+            mode: 'visit', // visit, assembly, precursor
+            congregation: 'Cong. Centro',
+            tasks: {
+                visit: [
+                    { id: 1, t: 'Revisión de Registros', d: false },
+                    { id: 2, t: 'Reunión Ancianos', d: false },
                     { id: 3, t: 'Salida al Campo', d: false }
                 ],
-                asamblea: [
-                    { id: 4, t: 'Reunión Oradores', d: false },
-                    { id: 5, t: 'Logística Auditorio', d: false }
+                assembly: [
+                    { id: 4, t: 'Discurso SC (Cian)', d: false },
+                    { id: 5, t: 'Reunión Oradores', d: false }
                 ],
                 precursor: [
                     { id: 6, t: 'Clase Servicio', d: false },
-                    { id: 7, t: 'Informes Horas', d: false }
+                    { id: 7, t: 'Informes de Horas', d: false }
                 ]
             }
         };
 
-        function guardar() { localStorage.setItem(DB_BENJA, JSON.stringify(estado)); }
+        function save() { localStorage.setItem(DB_KEY, JSON.stringify(state)); }
 
         function render() {
-            const contenedor = document.getElementById('lista-tareas');
-            const textoSemana = document.getElementById('semana-texto');
+            const container = document.getElementById('tasks');
+            const congEl = document.getElementById('cong-label');
             
             const config = {
-                visita: { color: '#5ce875', label: 'Semana Visita' },
-                asamblea: { color: '#7ec8f5', label: 'Asamblea SC' },
+                visit: { color: '#5ce875', label: 'Visita' },
+                assembly: { color: '#7ec8f5', label: 'Asamblea' },
                 precursor: { color: '#ffd060', label: 'Precursores' }
             };
 
-            const actual = config[estado.modo];
-            textoSemana.innerText = actual.label;
-            textoSemana.style.color = actual.color;
+            const actual = config[state.mode];
+            congEl.innerText = `${actual.label}: ${state.congregation}`;
+            congEl.style.color = actual.color;
 
-            contenedor.innerHTML = estado.tareas[estado.modo].map(tarea => `
-                <div class="item-tarea ${tarea.d ? 'completado' : ''}" 
-                     style="border-left-color: ${tarea.d ? '#444' : actual.color}"
-                     onclick="tildarTarea(${tarea.id})">
-                    <div style="width:12px; height:12px; border-radius:50%; border:2px solid ${actual.color}; background:${tarea.d ? actual.color : 'transparent'}"></div>
-                    <div>${tarea.t}</div>
+            container.innerHTML = state.tasks[state.mode].map(task => `
+                <div class="task-item ${task.d ? 'done' : ''}" 
+                     style="border-left-color: ${task.d ? '#444' : actual.color}"
+                     onclick="toggleTask(${task.id})">
+                    <div style="width:12px; height:12px; border-radius:50%; border:2px solid ${actual.color}; background:${task.d ? actual.color : 'transparent'}"></div>
+                    <div>${task.t}</div>
                 </div>
             `).join('');
         }
 
-        function tildarTarea(id) {
-            const t = estado.tareas[estado.modo].find(x => x.id === id);
+        function toggleTask(id) {
+            const t = state.tasks[state.mode].find(x => x.id === id);
             if(t) {
                 t.d = !t.d;
-                if (navigator.vibrate) navigator.vibrate(40);
-                guardar(); render();
+                if (navigator.vibrate) navigator.vibrate(45);
+                save(); render();
             }
         }
 
-        function cambiarCiclo() {
-            const modos = ['visita', 'asamblea', 'precursor'];
-            let idx = modos.indexOf(estado.modo);
-            estado.modo = modos[(idx + 1) % modos.length];
+        function cycleMode() {
+            const modes = ['visit', 'assembly', 'precursor'];
+            let idx = modes.indexOf(state.mode);
+            state.mode = modes[(idx + 1) % modes.length];
             if (navigator.vibrate) navigator.vibrate(60);
-            guardar(); render();
+            save(); render();
         }
 
-        function abrirSOS() {
+        function showSOS() {
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            document.getElementById('sos-capa').style.display = 'flex';
+            document.getElementById('sos-screen').style.display = 'flex';
         }
 
-        function relojTick() {
+        function updateClock() {
             const d = new Date();
-            document.getElementById('hora').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+            document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
             document.getElementById('bpm').innerText = 68 + Math.floor(Math.random() * 8);
         }
 
-        setInterval(relojTick, 1000);
-        relojTick();
+        setInterval(updateClock, 1000);
+        updateClock();
         render();
     </script>
 </body>
