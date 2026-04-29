@@ -4,62 +4,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ecosistema Benjamín 360</title>
+    <title>Benjamín - Espejo Interno 360</title>
     <style>
-        /* CONFIGURACIÓN CRÍTICA: BLOQUEO DE ESCALA */
+        /* CONFIGURACIÓN CRÍTICA: TAMAÑOS FIJOS PARA WATCH 7 */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
         
         body { 
             background: #000; color: #fff; margin: 0; 
-            font-family: 'Segoe UI', Arial, sans-serif; display: flex; 
-            justify-content: center; align-items: center; height: 100vh;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; overflow: hidden;
         }
 
-        /* ANILLO SEGURO (310px - Safe Zone para Watch 7) */
+        /* ANILLO SEGURO (310px) - BASADO EN FASE 2 EXITOSA */
         .watch-shell {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
-            padding: 48px 32px 35px 32px; 
+            padding: 52px 32px 40px 32px; 
             background: radial-gradient(circle, #04081a 0%, #000 100%);
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
+            transition: border-color 1s ease;
         }
 
-        /* CABECERA UNIFICADA */
+        /* CABECERA INTELIGENTE */
         .header { text-align: center; width: 100%; z-index: 10; }
         #clock { font-size: 28px; font-weight: bold; color: #7ec8f5; line-height: 1; }
-        #cong-info { font-size: 11px; font-weight: bold; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+        #cong-info { font-size: 11px; font-weight: bold; margin-top: 3px; text-transform: uppercase; color: #ffd060; }
+        
         .status-pill { 
-            display: inline-block; font-size: 9px; padding: 1px 6px; 
-            border-radius: 8px; margin-top: 3px; font-weight: 800;
+            display: inline-block; font-size: 9px; padding: 1px 8px; 
+            border-radius: 8px; margin-top: 4px; font-weight: 800; color: #000;
         }
 
-        /* LISTA ÚNICA DE FLUJO (CircuitoApp + Asistente 360) */
+        /* FLUJO UNIFICADO (CircuitoApp + Asistente 360) */
         .unified-flow { 
             flex: 1; width: 100%; margin: 8px 0; 
-            overflow-y: auto; scrollbar-width: none; 
-            z-index: 5;
+            overflow-y: auto; scrollbar-width: none; z-index: 5;
         }
         .unified-flow::-webkit-scrollbar { display: none; }
 
         .task-card { 
-            background: rgba(255,255,255,0.06); margin-bottom: 5px; 
-            padding: 9px 12px; border-radius: 12px; font-size: 13px; 
+            background: rgba(255,255,255,0.06); margin-bottom: 6px; 
+            padding: 9px 12px; border-radius: 12px; font-size: 13.5px; 
             display: flex; align-items: center; gap: 8px;
-            border-left: 4px solid #444;
-            transition: all 0.3s ease;
+            border-left: 4px solid #444; transition: all 0.3s ease;
         }
-        .task-card.done { opacity: 0.2; text-decoration: line-through; border-left-color: #222 !important; }
-        
-        .source-tag { font-size: 8px; opacity: 0.5; margin-top: 1px; display: block; }
+        .task-card.done { opacity: 0.25; text-decoration: line-through; border-left-color: #222 !important; }
+        .source-tag { font-size: 8px; opacity: 0.6; display: block; font-weight: bold; margin-bottom: 1px; }
 
         /* FOOTER */
-        .footer { display: flex; gap: 25px; z-index: 10; margin-bottom: 5px; }
+        .footer { display: flex; gap: 30px; z-index: 10; margin-bottom: 5px; }
         .btn-action { 
             width: 42px; height: 42px; border-radius: 50%; 
             border: 1.5px solid #1e5fa8; color: white; background: rgba(30,95,168,0.2); 
-            font-size: 18px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; display: flex; align-items: center; justify-content: center;
         }
 
         /* SOS BORDÓ (ANTIMIGRAÑA) */
@@ -73,69 +72,76 @@
 </head>
 <body>
 
-    <div class="watch-shell">
-        <!-- CABECERA INTELIGENTE -->
+    <div class="watch-shell" id="main-shell">
+        <!-- HEADER -->
         <div class="header">
             <div id="clock">00:00</div>
-            <div id="cong-info" style="color: #ffd060;">CONG. EJEMPLO</div>
-            <div id="week-pill" class="status-pill">DETECTANDO...</div>
+            <div id="cong-info">SINCRONIZANDO...</div>
+            <div id="week-pill" class="status-pill">ESPERE</div>
         </div>
 
-        <!-- FLUJO UNIFICADO -->
+        <!-- FLUJO DE TRABAJO -->
         <div class="unified-flow" id="main-flow">
-            <!-- Aquí se mezclan tareas de CircuitoApp y Asistente 360 -->
+            <!-- Inyectado por JS -->
         </div>
 
         <!-- ACCIONES -->
         <div class="footer">
             <button class="btn-action" onclick="showSOS()" style="color:#ff8080; border-color:#602020">⚠</button>
-            <button class="btn-action" onclick="refreshData()">🔄</button>
+            <button class="btn-action" onclick="location.reload()">🔄</button>
         </div>
 
         <!-- OVERLAY SOS -->
         <div id="sos-overlay" onclick="this.style.display='none'">
-            <div style="font-size: 40px; color: #ff6060;">⚠</div>
-            <div style="font-size: 18px; font-weight: bold;">CRISIS</div>
-            <p style="font-size: 11px; opacity: 0.7; margin-top: 4px;">Esperanza alertada</p>
+            <div style="font-size: 45px; color: #ff6060;">⚠</div>
+            <div style="font-size: 20px; font-weight: bold;">CRISIS</div>
+            <p style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Aviso enviado</p>
         </div>
     </div>
 
     <script>
-        // PROGRAMACIÓN DE EJEMPLO (Esto simula los datos de tu calendario)
-        // En una implementación real, esto se leería de tu base de datos de Google/Samsung
-        const SCHEDULE = [
-            { start: '2024-03-01', end: '2024-03-07', cong: 'Cong. Centro', type: 'visit' },
-            { start: '2024-03-08', end: '2024-03-14', cong: 'Asamblea Regional', type: 'assembly' },
-            { start: '2024-03-15', end: '2024-03-21', cong: 'Cong. Norte', type: 'precursor' }
+        // TABLA MAESTRA DE ITINERARIO (Espejo Interno de CircuitoApp)
+        // Programado para abril y mayo de 2026
+        const ITINERARIO = [
+            { start: '2026-04-20', end: '2026-04-26', cong: 'Cong. Centro', type: 'visit' },
+            { start: '2026-04-27', end: '2026-05-03', cong: 'Asamblea SC: Juan 4:24', type: 'assembly' },
+            { start: '2026-05-04', end: '2026-05-10', cong: 'Cong. Norte', type: 'visit' },
+            { start: '2026-05-11', end: '2026-05-17', cong: 'Escuela de Precursores', type: 'precursor' }
         ];
 
-        const STORAGE_KEY = 'benjamin_unified_v1';
-        let state = JSON.parse(localStorage.getItem(STORAGE_ID = STORAGE_KEY)) || {
-            doneIds: []
-        };
+        const STORAGE_KEY = 'benja_mirror_final_v1';
+        let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { doneIds: [] };
 
+        function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+        // Detecta automáticamente qué semana toca según la fecha del reloj
         function getActiveWeek() {
             const today = new Date();
-            // Para propósitos de demo, si no hay match, devolvemos 'visit' por defecto
-            const match = SCHEDULE.find(s => {
-                const start = new Date(s.start);
-                const end = new Date(s.end);
-                return today >= start && today <= end;
+            // Normalizar a medianoche para comparación limpia
+            const todayClean = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            
+            const match = ITINERARIO.find(s => {
+                const start = new Date(s.start.replace(/-/g, '\/'));
+                const end = new Date(s.end.replace(/-/g, '\/'));
+                return todayClean >= start && todayClean <= end;
             });
-            return match || { type: 'visit', cong: 'Sin Asignación' };
+            // Si no hay fecha en tabla, queda en modo Visita General por defecto
+            return match || { type: 'visit', cong: 'Circuito 360' };
         }
 
+        // Tareas unificadas según el tipo de semana
         function getTasks(type) {
             const circuitTasks = {
-                visit: ['Revisar Registros', 'Reunión Ancianos', 'Salida al Campo'],
-                assembly: ['Reunión Oradores', 'Logística Auditorio', 'Cierre Cuentas'],
-                precursor: ['Clase Servicio', 'Revisión Informes']
+                visit: ['Registros Congo', 'Reunión Ancianos', 'Salida al Campo', 'Pastoreo Familiar'],
+                assembly: ['Reunión Oradores', 'Supervisión Audio', 'Informe Cuentas'],
+                precursor: ['Clase Servicio', 'Revisión Informes', 'Entrevistas Prep.']
             };
-            const assistantTasks = ['Tomar Agua', 'Control Pulso', 'Breve Descanso'];
+            // Tareas fijas del Asistente 360 (Salud)
+            const assistantTasks = ['Control Salud', 'Beber Agua'];
             
             return [
                 ...circuitTasks[type].map(t => ({ t, src: 'CircuitoApp' })),
-                ...assistantTasks.map(t => ({ t, src: 'Asistente 360' }))
+                ...assistantTasks.map(t => ({ t, src: '360' }))
             ];
         }
 
@@ -143,29 +149,31 @@
             const flow = document.getElementById('main-flow');
             const pill = document.getElementById('week-pill');
             const cong = document.getElementById('cong-info');
+            const shell = document.getElementById('main-shell');
             
             const active = getActiveWeek();
             const config = {
-                visit: { color: '#5ce875', label: 'Semana de Visita' },
-                assembly: { color: '#7ec8f5', label: 'Semana de Asamblea' },
-                precursor: { color: '#ffd060', label: 'Semana Precursores' }
+                visit: { color: '#5ce875', label: 'SEMANA VISITA' },
+                assembly: { color: '#7ec8f5', label: 'SEMANA ASAMBLEA' },
+                precursor: { color: '#ffd060', label: 'PRECURSORES' }
             };
 
             const ui = config[active.type];
             cong.innerText = active.cong;
             pill.innerText = ui.label;
             pill.style.background = ui.color;
-            pill.style.color = '#000';
+            shell.style.borderColor = ui.color; // El anillo cambia solo de color
 
             const tasks = getTasks(active.type);
             flow.innerHTML = tasks.map((task, idx) => {
-                const isDone = state.doneIds.includes(`${active.type}-${idx}`);
+                const uniqueId = `${active.type}-${idx}`;
+                const isDone = state.doneIds.includes(uniqueId);
                 return `
                     <div class="task-card ${isDone ? 'done' : ''}" 
                          style="border-left-color: ${ui.color}"
-                         onclick="toggleTask('${active.type}-${idx}')">
+                         onclick="toggleTask('${uniqueId}')">
                         <div style="flex:1">
-                            <span class="source-tag">${task.src}</span>
+                            <span class="source-tag" style="color:${ui.color}">${task.src}</span>
                             <span>${task.t}</span>
                         </div>
                         <div style="width:14px; height:14px; border-radius:50%; border:1.5px solid ${ui.color}; background:${isDone ? ui.color : 'transparent'}"></div>
@@ -181,8 +189,7 @@
                 state.doneIds.push(id);
                 if (navigator.vibrate) navigator.vibrate(40);
             }
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            render();
+            save(); render();
         }
 
         function showSOS() {
@@ -190,18 +197,15 @@
             document.getElementById('sos-overlay').style.display = 'flex';
         }
 
-        function refreshData() {
-            if (navigator.vibrate) navigator.vibrate(60);
-            render();
-        }
-
-        function tick() {
+        function updateClock() {
             const d = new Date();
-            document.getElementById('clock').innerText = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+            document.getElementById('clock').innerText = 
+                d.getHours().toString().padStart(2,'0') + ':' + 
+                d.getMinutes().toString().padStart(2,'0');
         }
 
-        setInterval(tick, 1000);
-        tick();
+        setInterval(updateClock, 1000);
+        updateClock();
         render();
     </script>
 </body>
