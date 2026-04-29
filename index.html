@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Benjamín - Espejo Interno 360</title>
+    <title>Benjamín - Flujo Específico 360</title>
     <style>
         /* CONFIGURACIÓN CRÍTICA: TAMAÑOS FIJOS PARA WATCH 7 */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-text-size-adjust: none; }
@@ -16,7 +16,7 @@
             height: 100vh; overflow: hidden;
         }
 
-        /* ANILLO SEGURO (310px) - BASADO EN FASE 2 EXITOSA */
+        /* ANILLO SEGURO (310px) - DISEÑO COMPROBADO */
         .watch-shell {
             width: 310px; height: 310px; border-radius: 50%;
             border: 2px solid #1e5fa8; display: flex; flex-direction: column;
@@ -37,7 +37,7 @@
             border-radius: 8px; margin-top: 4px; font-weight: 800; color: #000;
         }
 
-        /* FLUJO UNIFICADO (CircuitoApp + Asistente 360) */
+        /* FLUJO ESPECÍFICO (Reflejo de CircuitoApp) */
         .unified-flow { 
             flex: 1; width: 100%; margin: 8px 0; 
             overflow-y: auto; scrollbar-width: none; z-index: 5;
@@ -46,7 +46,7 @@
 
         .task-card { 
             background: rgba(255,255,255,0.06); margin-bottom: 6px; 
-            padding: 9px 12px; border-radius: 12px; font-size: 13.5px; 
+            padding: 9px 12px; border-radius: 12px; font-size: 13px; 
             display: flex; align-items: center; gap: 8px;
             border-left: 4px solid #444; transition: all 0.3s ease;
         }
@@ -73,16 +73,16 @@
 <body>
 
     <div class="watch-shell" id="main-shell">
-        <!-- HEADER -->
+        <!-- CABECERA -->
         <div class="header">
             <div id="clock">00:00</div>
             <div id="cong-info">SINCRONIZANDO...</div>
             <div id="week-pill" class="status-pill">ESPERE</div>
         </div>
 
-        <!-- FLUJO DE TRABAJO -->
+        <!-- FLUJO DE TRABAJO DINÁMICO -->
         <div class="unified-flow" id="main-flow">
-            <!-- Inyectado por JS -->
+            <!-- Cargado por JS -->
         </div>
 
         <!-- ACCIONES -->
@@ -100,24 +100,57 @@
     </div>
 
     <script>
-        // TABLA MAESTRA DE ITINERARIO (Espejo Interno de CircuitoApp)
-        // Programado para abril y mayo de 2026
+        /**
+         * TABLA MAESTRA DE ITINERARIO (Punto 2: Tareas Específicas)
+         * Aquí defines las tareas únicas que anotaste en tu Super CircuitoApp para cada visita.
+         */
         const ITINERARIO = [
-            { start: '2026-04-20', end: '2026-04-26', cong: 'Cong. Centro', type: 'visit' },
-            { start: '2026-04-27', end: '2026-05-03', cong: 'Asamblea SC: Juan 4:24', type: 'assembly' },
-            { start: '2026-05-04', end: '2026-05-10', cong: 'Cong. Norte', type: 'visit' },
-            { start: '2026-05-11', end: '2026-05-17', cong: 'Escuela de Precursores', type: 'precursor' }
+            { 
+                start: '2026-04-20', 
+                end: '2026-04-26', 
+                cong: 'Cong. Centro', 
+                type: 'visit',
+                tasks: [
+                    { t: 'Revisar Cuentas Salón', src: 'CircuitoApp' },
+                    { t: 'Pastoreo Fam. Martínez', src: 'CircuitoApp' },
+                    { t: 'Reunión Precursores', src: 'CircuitoApp' },
+                    { t: 'Hidratación', src: '360' }
+                ]
+            },
+            { 
+                start: '2026-04-27', 
+                end: '2026-05-03', 
+                cong: 'Asamblea SC: Juan 4:24', 
+                type: 'assembly',
+                tasks: [
+                    { t: 'Repaso de Discurso', src: 'CircuitoApp' },
+                    { t: 'Supervisión Acomodadores', src: 'CircuitoApp' },
+                    { t: 'Control de Pulso', src: '360' },
+                    { t: 'Pausa Visual (Migraña)', src: '360' }
+                ]
+            },
+            { 
+                start: '2026-05-04', 
+                end: '2026-05-10', 
+                cong: 'Cong. Norte', 
+                type: 'visit',
+                tasks: [
+                    { t: 'Revisión Registros Campo', src: 'CircuitoApp' },
+                    { t: 'Entrevista Ancianos', src: 'CircuitoApp' },
+                    { t: 'Salida Grupo 3', src: 'CircuitoApp' },
+                    { t: 'Beber Agua', src: '360' }
+                ]
+            }
         ];
 
-        const STORAGE_KEY = 'benja_mirror_final_v1';
+        const STORAGE_KEY = 'benja_specific_v2';
         let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { doneIds: [] };
 
         function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-        // Detecta automáticamente qué semana toca según la fecha del reloj
+        // Reconocimiento automático de fecha
         function getActiveWeek() {
             const today = new Date();
-            // Normalizar a medianoche para comparación limpia
             const todayClean = new Date(today.getFullYear(), today.getMonth(), today.getDate());
             
             const match = ITINERARIO.find(s => {
@@ -125,24 +158,11 @@
                 const end = new Date(s.end.replace(/-/g, '\/'));
                 return todayClean >= start && todayClean <= end;
             });
-            // Si no hay fecha en tabla, queda en modo Visita General por defecto
-            return match || { type: 'visit', cong: 'Circuito 360' };
-        }
-
-        // Tareas unificadas según el tipo de semana
-        function getTasks(type) {
-            const circuitTasks = {
-                visit: ['Registros Congo', 'Reunión Ancianos', 'Salida al Campo', 'Pastoreo Familiar'],
-                assembly: ['Reunión Oradores', 'Supervisión Audio', 'Informe Cuentas'],
-                precursor: ['Clase Servicio', 'Revisión Informes', 'Entrevistas Prep.']
+            return match || { 
+                type: 'visit', 
+                cong: 'Circuito 360', 
+                tasks: [{t: 'Sin tareas programadas', src: 'Info'}] 
             };
-            // Tareas fijas del Asistente 360 (Salud)
-            const assistantTasks = ['Control Salud', 'Beber Agua'];
-            
-            return [
-                ...circuitTasks[type].map(t => ({ t, src: 'CircuitoApp' })),
-                ...assistantTasks.map(t => ({ t, src: '360' }))
-            ];
         }
 
         function render() {
@@ -162,11 +182,11 @@
             cong.innerText = active.cong;
             pill.innerText = ui.label;
             pill.style.background = ui.color;
-            shell.style.borderColor = ui.color; // El anillo cambia solo de color
+            shell.style.borderColor = ui.color;
 
-            const tasks = getTasks(active.type);
-            flow.innerHTML = tasks.map((task, idx) => {
-                const uniqueId = `${active.type}-${idx}`;
+            // Renderizado de tareas específicas del itinerario
+            flow.innerHTML = active.tasks.map((task, idx) => {
+                const uniqueId = `${active.cong}-${active.start}-${idx}`;
                 const isDone = state.doneIds.includes(uniqueId);
                 return `
                     <div class="task-card ${isDone ? 'done' : ''}" 
