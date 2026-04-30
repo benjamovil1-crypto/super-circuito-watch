@@ -1,0 +1,85 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargar Datos - Super CircuitoApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-[#000010] text-slate-200 min-h-screen flex flex-col items-center p-6 font-sans">
+    
+    <header class="w-full max-w-md mb-10 mt-8">
+        <h1 class="text-3xl font-bold text-white">Sincronizador</h1>
+        <p class="text-blue-400 text-sm font-bold uppercase tracking-widest mt-1">Puente para Watch 7</p>
+    </header>
+
+    <main class="w-full max-w-md bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center shadow-2xl">
+        <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
+            <svg class="text-blue-500" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        
+        <h2 class="text-xl font-bold text-white mb-2">Subir JSON</h2>
+        <p class="text-slate-500 text-sm mb-8 px-4">Carga el respaldo de tu Super CircuitoApp para que aparezca en tu reloj automáticamente.</p>
+
+        <label class="block w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold py-5 rounded-2xl cursor-pointer transition-all">
+            SELECCIONAR ARCHIVO
+            <input type="file" id="fileInput" class="hidden" accept=".json">
+        </label>
+
+        <div id="status" class="mt-6 text-[10px] font-black uppercase tracking-widest text-blue-500 border-t border-white/5 pt-4">
+            Esperando archivo...
+        </div>
+    </main>
+
+    <script>
+        const firebaseConfig = JSON.parse(__firebase_config);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        const statusEl = document.getElementById('status');
+        const fileInput = document.getElementById('fileInput');
+
+        // Autenticación obligatoria (Regla 3)
+        auth.signInAnonymously().then(() => {
+            statusEl.innerText = "Conexión Lista";
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const jsonData = JSON.parse(event.target.result);
+                    statusEl.innerText = "Sincronizando con el Watch...";
+
+                    // Guardar en Firestore (Regla 1: Path estricto)
+                    await db.collection('artifacts').doc(appId)
+                            .collection('public').doc('data')
+                            .collection('itinerario').doc('actual').set({
+                                data: jsonData,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+
+                    statusEl.innerText = "¡Sincronización Exitosa!";
+                    statusEl.classList.add('text-green-500');
+                } catch (err) {
+                    statusEl.innerText = "Error: JSON no válido";
+                    statusEl.classList.add('text-red-500');
+                }
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>
+
+```
+
