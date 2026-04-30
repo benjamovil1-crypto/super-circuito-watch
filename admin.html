@@ -4,115 +4,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sincronizador Benjamín 360</title>
+    <title>Buzón Benjamín 360</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-[#000010] text-slate-200 min-h-screen flex flex-col items-center p-6 font-sans">
     
-    <header class="w-full max-w-md mb-8 mt-4 text-center">
-        <h1 class="text-3xl font-bold text-white tracking-tight">Sincronizador</h1>
-        <p class="text-blue-400 text-xs font-black uppercase tracking-[0.3em] mt-2">Puente de Datos Watch 7</p>
+    <header class="w-full max-w-md mb-10 mt-8 text-center">
+        <h1 class="text-3xl font-bold text-white tracking-tight">Buzón 360</h1>
+        <p class="text-blue-400 text-xs font-black uppercase tracking-[0.2em] mt-2">Sincronizador Directo</p>
     </header>
 
-    <main class="w-full max-w-md bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center shadow-2xl relative">
-        <!-- Pantalla de Error si falta configuración -->
-        <div id="config-error" class="hidden">
-            <div class="text-amber-500 mb-4 text-sm font-bold uppercase">⚠️ Falta Configuración</div>
-            <p class="text-xs text-slate-400 mb-4">Para que el sincronizador funcione en GitHub, pega tu configuración de Firebase abajo:</p>
-            <textarea id="config-input" class="w-full h-32 bg-black border border-white/10 rounded-xl p-2 text-[10px] text-blue-300 font-mono" placeholder='{"apiKey": "...", "authDomain": "...", ...}'></textarea>
-            <button onclick="saveConfigManual()" class="mt-4 w-full bg-blue-600 py-3 rounded-xl font-bold text-sm">GUARDAR CONFIGURACIÓN</button>
-        </div>
+    <main class="w-full max-w-md bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center shadow-2xl">
+        <h2 class="text-lg font-bold text-white mb-4">Pegar Datos del APK</h2>
+        
+        <!-- Área para pegar el texto JSON -->
+        <textarea id="jsonInput" class="w-full h-48 bg-black/50 border border-white/10 rounded-2xl p-4 text-[10px] text-blue-300 font-mono mb-6 outline-none focus:border-blue-500" placeholder='Pega aquí el texto que empieza con {"data": ...'></textarea>
 
-        <!-- Pantalla de Carga normal -->
-        <div id="main-ui">
-            <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
-                <svg class="text-blue-500" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </div>
-            
-            <h2 class="text-xl font-bold text-white mb-2">Reflejar APK</h2>
-            <p class="text-slate-500 text-sm mb-8">Elige el JSON de tu Super CircuitoApp.</p>
+        <button onclick="enviarAlReloj()" id="btnEnviar" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold py-5 rounded-2xl transition-all shadow-lg shadow-blue-900/20">
+            ENVIAR AL RELOJ
+        </button>
 
-            <input type="file" id="fileInput" class="hidden" accept=".json">
-            <button id="uploadBtn" onclick="document.getElementById('fileInput').click()" class="w-full bg-blue-600 py-5 rounded-2xl font-bold transition-all shadow-lg shadow-blue-900/20 active:scale-95 disabled:opacity-50 disabled:bg-slate-700" disabled>
-                SELECCIONAR ARCHIVO
-            </button>
-
-            <div id="status" class="mt-8 text-[10px] font-black uppercase tracking-widest text-slate-500 border-t border-white/5 pt-6">
-                ESTADO: INICIALIZANDO...
-            </div>
+        <div id="status" class="mt-8 text-[10px] font-black uppercase tracking-widest text-slate-500 border-t border-white/5 pt-6">
+            ESTADO: LISTO
         </div>
     </main>
 
     <script>
-        let db, auth, appId;
-        const statusEl = document.getElementById('status');
-        const uploadBtn = document.getElementById('uploadBtn');
+        // Tu llave única del buzón (No la cambies)
+        const BUZON_ID = "benjamin_360_u_" + Date.now(); 
+        // Para que sea siempre la misma para ti, usaremos una fija:
+        const MY_KEY = "benjamin_360_master_sync";
 
-        // Función para intentar inicializar
-        async function init() {
-            let config;
-            try {
-                // Primero intentamos la del sistema
-                config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-                // Si no, la de localStorage (manual)
-                if (!config) config = JSON.parse(localStorage.getItem('benjamin_fb_config'));
-            } catch (e) { console.error("Config error", e); }
+        async function enviarAlReloj() {
+            const text = document.getElementById('jsonInput').value;
+            const status = document.getElementById('status');
+            const btn = document.getElementById('btnEnviar');
 
-            if (!config) {
-                document.getElementById('main-ui').classList.add('hidden');
-                document.getElementById('config-error').classList.remove('hidden');
+            if(!text.trim()) {
+                status.innerText = "ERROR: EL CAMPO ESTÁ VACÍO";
+                status.style.color = "#ff6060";
                 return;
             }
 
             try {
-                firebase.initializeApp(config);
-                db = firebase.firestore();
-                auth = firebase.auth();
-                appId = typeof __app_id !== 'undefined' ? __app_id : 'super-circuito-360';
+                // Verificamos que sea JSON válido
+                JSON.parse(text);
+                
+                status.innerText = "SINCRONIZANDO...";
+                btn.disabled = true;
+                btn.style.opacity = "0.5";
 
-                await auth.signInAnonymously();
-                statusEl.innerText = "ESTADO: LISTO PARA SUBIR";
-                statusEl.classList.replace('text-slate-500', 'text-green-500');
-                uploadBtn.disabled = false;
+                // Guardamos en el buzón público KVDB (Gratuito y sin registro)
+                const res = await fetch(`https://kvdb.io/S9L5GqBv6vJqYx7uJp7uJp/${MY_KEY}`, {
+                    method: 'POST',
+                    body: text
+                });
+
+                if(res.ok) {
+                    status.innerText = "¡SINCRONIZADO CON ÉXITO!";
+                    status.style.color = "#5ce875";
+                    document.getElementById('jsonInput').value = "";
+                } else {
+                    throw new Error();
+                }
             } catch (e) {
-                statusEl.innerText = "ERROR DE CONEXIÓN: " + e.message;
-                statusEl.classList.replace('text-slate-500', 'text-red-500');
+                status.innerText = "ERROR: EL TEXTO NO ES UN JSON VÁLIDO";
+                status.style.color = "#ff6060";
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = "1";
             }
         }
+    </script>
+</body>
+</html>
 
-        function saveConfigManual() {
-            const val = document.getElementById('config-input').value;
-            if (val) {
-                localStorage.setItem('benjamin_fb_config', val);
-                location.reload();
-            }
-        }
-
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            statusEl.innerText = "LEYENDO ARCHIVO...";
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                try {
-                    const json = JSON.parse(event.target.result);
-                    statusEl.innerText = "SUBIENDO AL RELOJ...";
-                    
-                    // RUTA ESTRICTA SEGÚN REGLA 1
-                    await db.collection('artifacts').doc(appId)
-                            .collection('public').doc('data')
-                            .collection('itinerario').doc('actual').set({
-                                data: json,
-                                syncAt: new Date().getTime()
-                            });
-
-                    statusEl.innerText = "¡SINCRONIZACIÓN EXITOSA!";
-                    statusEl.classList.replace('text-slate-500', 'text-green-400');
-                } catch (err) {
+```
                     statusEl.innerText = "ERROR: ARCHIVO NO VÁLIDO";
                     statusEl.classList.replace('text-slate-500', 'text-red-500');
                 }
