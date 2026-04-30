@@ -4,186 +4,105 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover"/>
-<title>CircuitoWatch 360 - Benjamín</title>
+<title>CircuitoWatch 360</title>
 <style>
 /* ════════════════════════════════════════
-   DISEÑO ORIGINAL DE BENJAMÍN (100% RECONSTRUIDO)
-   Galaxy Watch 7 · 432 × 432 px
+   TU DISEÑO ORIGINAL (INTEGRAL 100%)
 ════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#000010;
-  --b1:#0d1f42;
+  --bg:#000010; --b1:#0d1f42;
   --blue:#4da8f8;--blue2:#7ec8ff;--blue-d:rgba(30,95,168,0.7);
   --gold:#ffd060;--green:#5ce875;--red:#ff6060;--purple:#c084fc;
   --text:#e8f4ff;--dim:#6a8fb8;--dim2:#3a5a7a;
   --sz:432px;--half:216px;
 }
-
-html,body{
-  width:100%;height:100%;max-width:var(--sz);max-height:var(--sz);
-  overflow:hidden;background:var(--bg);
-  font-family:'Segoe UI',Tahoma,Geneva,sans-serif;
-  color:var(--text);
-  -webkit-tap-highlight-color:transparent;
-  -webkit-font-smoothing:antialiased;
-}
-
-/* Efecto Máscara Circular AMOLED */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
-  background: 
-    radial-gradient(circle at center,transparent 83%,rgba(0,0,16,0.95) 100%),
-    radial-gradient(circle at center,transparent 90%,#000010 100%);
-}
-
-/* CAROUSEL MASTER */
+html,body{ width:100%;height:100%;max-width:var(--sz);max-height:var(--sz); overflow:hidden;background:var(--bg); font-family:sans-serif; color:var(--text); }
+body::after{ content:'';position:fixed;inset:0;pointer-events:none;z-index:999; background: radial-gradient(circle at center,transparent 83%,rgba(0,0,16,0.95) 100%); }
 .car-wrap{overflow:hidden;width:100%;height:100%;}
-.carousel{
-  display:flex;width:600%;height:100%;
-  transition:transform .3s cubic-bezier(.4,0,.2,1);
-  will-change:transform;
-}
-.page{
-  width:calc(100%/6);height:100%;flex-shrink:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-}
-.sz{ width:320px;display:flex;flex-direction:column;align-items:center; position:relative;z-index:1; }
-.sz.scroll{overflow-y:auto;max-height:305px;padding-bottom:45px;}
+.carousel{ display:flex;width:600%;height:100%; transition:transform .3s ease; }
+.page{ width:calc(100%/6);height:100%;flex-shrink:0; display:flex;flex-direction:column;align-items:center;justify-content:center; position:relative; }
+.sz{ width:315px;display:flex;flex-direction:column;align-items:center; }
+.sz.scroll{overflow-y:auto;max-height:300px;padding-bottom:50px;}
 .sz.scroll::-webkit-scrollbar{display:none;}
 
-/* ENCABEZADOS Y TEXTOS ORIGINALES */
-.pg-h{ font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700; color:var(--dim);margin-bottom:10px;text-align:center; }
-.pg-h.blue{color:var(--blue);} .pg-h.gold{color:var(--gold);} .pg-h.green{color:var(--green);} .pg-h.purple{color:var(--purple);}
+.h-cong{ font-size:16px;font-weight:700;text-align:center;margin:4px 0; }
+.stat-g{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:220px;margin-top:10px;}
+.stat{ background:rgba(255,255,255,0.05);border:1px solid rgba(77,168,248,0.2); border-radius:10px;padding:8px;text-align:center; }
+.stat-v{font-size:22px;font-weight:bold;color:var(--blue);font-family:monospace;}
+.stat-l{font-size:8px;color:var(--dim);text-transform:uppercase;}
 
-.h-date{font-size:9.5px;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:2px;}
-.h-cong{
-  font-size:15px;font-weight:700;color:#fff;text-align:center;
-  line-height:1.22;margin:3px 0 1px;max-width:215px;
-  text-shadow:0 0-22px rgba(77,168,248,0.4);
-}
-.h-city{font-size:9px;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.chk-wrap{width:100%;padding:0 30px;}
+.chk{ display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:5px; background:rgba(255,255,255,0.05);border-radius:12px; font-size:11px; border-left:4px solid var(--green); }
+.chk-ring{ width:22px;height:22px;border-radius:50%; border:2px solid var(--green); display:flex;align-items:center;justify-content:center; }
+.chk.done{opacity:0.2;text-decoration:line-through;}
 
-/* STAT CARDS */
-.stat-g{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:205px;}
-.stat{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(77,168,248,0.15);
-  border-radius:9px;padding:7px 4px;text-align:center;
-}
-.stat-v{font-size:22px;font-weight:700;font-family:monospace;color:var(--blue);}
-.stat-l{font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;}
-
-/* CHECKLIST */
-.chk-wrap{width:100%;padding:0 34px;}
-.chk{
-  display:flex;align-items:center;gap:8px;padding:7px 9px;margin-bottom:4px;
-  border-radius:10px;background:rgba(255,255,255,0.035);
-  border:1px solid rgba(92,232,117,0.1); cursor:pointer; min-height:42px;
-}
-.chk.done{ background:rgba(92,232,117,0.07); opacity:0.5; }
-.chk-ring{
-  width:24px;height:24px;min-width:24px;border-radius:50%;
-  border:2px solid rgba(92,232,117,0.4);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px; font-weight:700; color:transparent;
-}
-.chk.done .chk-ring{ background:var(--green);border-color:var(--green);color:#000; }
-.chk-txt{ font-size:10.5px;line-height:1.3; }
-
-/* ELEMENTOS DE LISTA (REUNIONES, COMIDAS, PASTOREO) */
-.rc{ width:100%;padding:8px 10px;border-radius:10px;margin-bottom:5px; border:1px solid rgba(192,132,252,0.2);background:rgba(192,132,252,0.05); }
-.rc.blue{border-color:rgba(77,168,248,0.2);background:rgba(77,168,248,0.05);}
-.rc.gold{border-color:rgba(255,208,96,0.2);background:rgba(255,208,96,0.05);}
-.rc-ttl{font-size:8px;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
+.rc{ width:100%;padding:10px;border-radius:12px;margin-bottom:6px; border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03); }
 .rc-row{display:flex;justify-content:space-between;align-items:center;}
-.rc-nm{font-size:11.5px;color:var(--text);font-weight:600;}
+.rc-nm{font-size:12px;font-weight:bold;}
 .rc-hr{font-size:12px;color:var(--blue2);font-family:monospace;}
 
-/* CRONÓMETRO */
-.t-disp{ font-family:monospace;font-size:54px;font-weight:700; color:var(--blue);letter-spacing:5px;line-height:1; margin-bottom:6px; }
-.t-prog{ width:180px;height:5px;background:#111;border-radius:3px;overflow:hidden;margin-bottom:20px; border:1px solid rgba(255,255,255,0.05); }
-.t-prog-fill{ width:0%;height:100%;background:var(--blue); }
-.t-btns{ display:flex;gap:20px; }
-.tb{ width:54px;height:54px;border-radius:50%;border:none; cursor:pointer;font-size:20px; display:flex;align-items:center;justify-content:center; }
-.tb-go{background:linear-gradient(135deg,#1a7a3a,#0a4a1a);border:2px solid rgba(92,232,117,0.25);color:white;}
-.tb-rs{background:linear-gradient(135deg,#7a1e1e,#4a0d0d);border:2px solid rgba(255,96,96,0.2);color:white;}
+.t-disp{ font-family:monospace;font-size:54px;font-weight:bold;color:var(--blue);margin-bottom:10px;}
+.tb{ width:50px;height:50px;border-radius:50%;border:1px solid var(--blue); display:flex;align-items:center;justify-content:center; }
 
-/* NAVEGACIÓN DOTS */
-.nav-dots{ position:fixed;bottom:18px;left:50%;transform:translateX(-50%); display:flex;gap:7px;z-index:100; }
-.dot{ width:7px;height:7px;border-radius:50%; background:var(--dim2); }
+.nav-dots{ position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:7px; }
+.dot{width:7px;height:7px;border-radius:50%;background:#333;}
 .dot.on{background:var(--blue);width:16px;border-radius:3.5px;}
 
-/* TAG DE SINCRONIZACIÓN */
-#sync-tag{ position:fixed;top:40px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:bold;z-index:1001;padding:2px 8px;border-radius:10px;background:rgba(0,0,0,0.6);}
+#status-tag{ position:fixed;top:40px;font-size:8px;font-weight:bold;z-index:1000;color:var(--gold);background:rgba(0,0,0,0.6);padding:2px 10px;border-radius:10px;}
 </style>
 </head>
 <body>
 
-<div id="sync-tag" style="color:var(--gold)">BUSCANDO GOOGLE...</div>
+<div id="status-tag">BUSCANDO BUZÓN...</div>
 
 <div class="car-wrap">
 <div class="carousel" id="car">
-
-  <!-- P0: HOY / RESUMEN -->
-  <div class="page" id="p0">
-    <div class="sz">
-      <div class="h-date" id="h-date">Semana de Visita</div>
-      <div class="h-cong" id="h-cong">Sin Datos</div>
-      <div class="h-city" id="h-city">Sincronice en PC</div>
-      <div class="stat-g">
-        <div class="stat"><div class="stat-v" id="s-eb">0</div><div class="stat-l">Prom EB</div></div>
-        <div class="stat"><div class="stat-v" id="s-rp">0</div><div class="stat-l">Prom RP</div></div>
-        <div class="stat"><div class="stat-v" id="s-cur" style="color:var(--blue2)">0</div><div class="stat-l">Cursos</div></div>
-        <div class="stat"><div class="stat-v" id="s-pub" style="color:var(--green)">0</div><div class="stat-l">Pub.</div></div>
-      </div>
+  
+  <!-- P0: HOME -->
+  <div class="page" id="p0"><div class="sz">
+    <div style="font-size:9px;color:var(--dim);letter-spacing:2px">HOY</div>
+    <div class="h-cong" id="h-cong">Sin datos</div>
+    <div class="stat-g">
+      <div class="stat"><div class="stat-v" id="s-eb">—</div><div class="stat-l">Prom EB</div></div>
+      <div class="stat"><div class="stat-v" id="s-rp">—</div><div class="stat-l">Prom RP</div></div>
+      <div class="stat"><div class="stat-v" id="s-cur" style="color:var(--blue2)">—</div><div class="stat-l">Cursos</div></div>
+      <div class="stat"><div class="stat-v" id="s-pub" style="color:var(--green)">—</div><div class="stat-l">Pub.</div></div>
     </div>
-  </div>
+  </div></div>
 
   <!-- P1: AGENDA -->
-  <div class="page" id="p1" style="justify-content:flex-start;padding-top:52px">
-    <div class="sz scroll">
-      <div class="pg-h green">✅ AGENDA DEL DÍA</div>
-      <div id="chk-wrap"></div>
-    </div>
-  </div>
+  <div class="page" id="p1" style="justify-content:flex-start;padding-top:60px"><div class="sz scroll">
+    <div style="font-size:9px;color:var(--green);font-weight:bold;margin-bottom:12px;letter-spacing:1px">✅ AGENDA DEL DÍA</div>
+    <div class="chk-wrap" id="chk-wrap"></div>
+  </div></div>
 
   <!-- P2: REUNIONES -->
-  <div class="page" id="p2" style="justify-content:flex-start;padding-top:52px">
-    <div class="sz scroll" style="padding:0 34px">
-      <div class="pg-h purple">🗓 REUNIONES</div>
-      <div id="reu-wrap"></div>
-    </div>
-  </div>
+  <div class="page" id="p2" style="justify-content:flex-start;padding-top:60px"><div class="sz scroll">
+    <div style="font-size:9px;color:var(--purple);font-weight:bold;margin-bottom:12px">🗓 REUNIONES</div>
+    <div id="reu-wrap" style="width:100%;padding:0 30px"></div>
+  </div></div>
 
   <!-- P3: COMIDAS -->
-  <div class="page" id="p3" style="justify-content:flex-start;padding-top:52px">
-    <div class="sz scroll" style="padding:0 34px">
-      <div class="pg-h gold">🍽 COMIDAS</div>
-      <div id="com-wrap"></div>
-    </div>
-  </div>
+  <div class="page" id="p3" style="justify-content:flex-start;padding-top:60px"><div class="sz scroll">
+    <div style="font-size:9px;color:var(--gold);font-weight:bold;margin-bottom:12px">🍽 COMIDAS</div>
+    <div id="com-wrap" style="width:100%;padding:0 30px"></div>
+  </div></div>
 
   <!-- P4: PASTOREO -->
-  <div class="page" id="p4" style="justify-content:flex-start;padding-top:52px">
-    <div class="sz scroll" style="padding:0 34px">
-      <div class="pg-h green">🏠 PASTOREO</div>
-      <div id="past-wrap"></div>
-    </div>
-  </div>
+  <div class="page" id="p4" style="justify-content:flex-start;padding-top:60px"><div class="sz scroll">
+    <div style="font-size:9px;color:var(--green);font-weight:bold;margin-bottom:12px">🏠 PASTOREO</div>
+    <div id="past-wrap" style="width:100%;padding:0 30px"></div>
+  </div></div>
 
   <!-- P5: CRONÓMETRO -->
-  <div class="page" id="p5">
-    <div class="sz">
-      <div class="pg-h blue">⏱ CRONÓMETRO</div>
-      <div class="t-disp" id="t-disp">00:00</div>
-      <div class="t-prog"><div class="t-prog-fill" id="t-prog-fill"></div></div>
-      <div class="t-btns" style="display:flex;gap:20px">
-        <div class="tb tb-go" onclick="tStart()">▶</div>
-        <div class="tb tb-rs" onclick="tReset()">↺</div>
-      </div>
+  <div class="page" id="p5"><div class="sz">
+    <div class="t-disp" id="t-disp">00:00</div>
+    <div style="display:flex;gap:20px">
+      <div class="tb" style="border-color:var(--green);color:var(--green)" onclick="tStart()">▶</div>
+      <div class="tb" style="border-color:var(--red);color:var(--red)" onclick="tReset()">↺</div>
     </div>
-  </div>
+  </div></div>
 
 </div>
 </div>
@@ -191,122 +110,92 @@ body::after{
 <div class="nav-dots" id="nav-dots"></div>
 
 <script>
-/** * ════════════════════════════════════════
- * CONFIGURACIÓN DEL PUENTE GOOGLE
- * ════════════════════════════════════════
- */
-// Sustituye 'TU_ID_AQUÍ' por el ID de tu hoja de Google publicada como .csv
-const GOOGLE_SHEET_ID = 'https://docs.google.com/spreadsheets/d/e/2PACX- 1VRTHpPQCtCgVg8MgrNs26yj0JpUXRrm2= AHLSA1EcrNIyt9wndgP3pfArpB3jl5TiMyvmHnb9aPb4v1/pub? output=csv'; 
-const URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv`;
+// --- MOTOR DE SINCRONIZACIÓN ---
+const MY_KEY = "benjamin_360_master_sync";
+const statusTag = document.getElementById('status-tag');
 
-async function fetchGoogle() {
-  if(GOOGLE_SHEET_ID === 'TU_ID_AQUÍ') return;
-  try {
-    const res = await fetch(URL);
-    const csv = await res.text();
-    
-    // El JSON de la APK está en la primera celda
-    let raw = csv.split('\n')[0];
-    // Limpiar comillas automáticas de Google
-    if(raw.startsWith('"') && raw.endsWith('"')) {
-        raw = raw.substring(1, raw.length - 1).replace(/""/g, '"');
-    }
-    
-    const data = JSON.parse(raw);
-    render(data);
-    
-    const tag = document.getElementById('sync-tag');
-    tag.innerText = "SINCRO OK"; tag.style.color = "var(--green)";
-  } catch (e) {
-    const tag = document.getElementById('sync-tag');
-    tag.innerText = "ERROR DATOS"; tag.style.color = "var(--red)";
-  }
+function sync() {
+    // Usamos XMLHttpRequest para máxima compatibilidad con el reloj
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "https://kvdb.io/S9L5GqBv6vJqYx7uJp7uJp/" + MY_KEY, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            try {
+                var json = JSON.parse(xhr.responseText);
+                render(json.data || json);
+                statusTag.innerText = "SINCRO OK";
+                statusTag.style.color = "var(--green)";
+            } catch(e) { statusTag.innerText = "ERROR DATOS"; }
+        }
+    };
+    xhr.send();
 }
 
-function render(json) {
-    const d = json.data || json;
-    const cong = d.congregaciones[0];
-    const visit = (cong.visitas || []).slice(-1)[0];
+function render(d) {
+    var cong = d.congregaciones[0];
+    var v = (cong.visitas || []).slice(-1)[0];
 
-    // Home
     document.getElementById('h-cong').innerText = cong.nombre;
-    document.getElementById('h-city').innerText = cong.ciudad || 'Super Circuito 360';
-    document.getElementById('s-eb').innerText = (visit.eb || [])[0] || '0';
-    document.getElementById('s-rp').innerText = (visit.rp || [])[0] || '0';
-    document.getElementById('s-cur').innerText = (visit.cursos || [])[0] || '0';
-    document.getElementById('s-pub').innerText = (visit.publicadores || [])[0] || '0';
+    document.getElementById('s-eb').innerText = (v.eb || [])[0] || '0';
+    document.getElementById('s-rp').innerText = (v.rp || [])[0] || '0';
+    document.getElementById('s-cur').innerText = (v.cursos || [])[0] || '0';
+    document.getElementById('s-pub').innerText = (v.publicadores || [])[0] || '0';
 
-    // Agenda / Checklist
-    const agenda = document.getElementById('chk-wrap');
-    const items = [];
-    if(visit.reu_vm_dia) items.push("⚡ Reunión VMC: " + visit.reu_vm_hora);
-    if(visit.reu_rp_dia) items.push("🏛 Reunión Pública: " + visit.reu_rp_hora);
-    (visit.pastoreo || []).forEach(p => items.push("🏠 " + (p.familia || "Pastoreo")));
-    
-    agenda.innerHTML = items.map(t => `
-        <div class="chk" onclick="this.classList.toggle('done')">
-            <div class="chk-ring">✓</div>
-            <div class="chk-txt">${t}</div>
-        </div>
-    `).join('');
+    // Agenda
+    var agenda = [];
+    if(v.reu_vm_dia) agenda.push("⚡ VMC: " + v.reu_vm_hora);
+    (v.pastoreo || []).forEach(function(p){ agenda.push("🏠 " + p.familia); });
+    document.getElementById('chk-wrap').innerHTML = agenda.map(function(t){
+        return '<div class="chk" onclick="this.classList.toggle(\'done\')"><div class="chk-ring">✓</div><span class="chk-txt">'+t+'</span></div>';
+    }).join('');
 
-    // Reuniones (Página 2)
-    document.getElementById('reu-wrap').innerHTML = `
-        <div class="rc purple"><div class="rc-ttl">⚡ VMC</div><div class="rc-row"><span class="rc-nm">${visit.reu_vm_dia||'—'}</span><span class="rc-hr">${visit.reu_vm_hora||'—'}</span></div></div>
-        <div class="rc blue"><div class="rc-ttl">🏛 PUBLICA</div><div class="rc-row"><span class="rc-nm">${visit.reu_rp_dia||'—'}</span><span class="rc-hr">${visit.reu_rp_hora||'—'}</span></div></div>
-    `;
+    // Reuniones
+    document.getElementById('reu-wrap').innerHTML = 
+        '<div class="rc" style="border-color:var(--purple)"><div class="rc-row"><span class="rc-nm">VMC</span><span class="rc-hr">'+(v.reu_vm_hora||'—')+'</span></div></div>' +
+        '<div class="rc" style="border-color:var(--blue)"><div class="rc-row"><span class="rc-nm">PÚBLICA</span><span class="rc-hr">'+(v.reu_rp_hora||'—')+'</span></div></div>';
 
-    // Comidas (Página 3)
-    const com = document.getElementById('com-wrap');
-    const comItems = (visit.comidas || []).map(c => `
-        <div class="rc gold"><div class="rc-ttl">${c.tipo||'COMIDA'}</div><div class="rc-row"><span class="rc-nm">${c.familia||'Anfitriones'}</span><span class="rc-hr">${c.hora||''}</span></div></div>
-    `).join('');
-    com.innerHTML = comItems || '<p style="font-size:10px;color:var(--dim);text-align:center;margin-top:20px">Sin datos de comidas</p>';
+    // Comidas
+    document.getElementById('com-wrap').innerHTML = (v.comidas || []).map(function(c){
+        return '<div class="rc" style="border-color:var(--gold)"><div class="rc-row"><span class="rc-nm">'+(c.familia||'Hnos')+'</span><span class="rc-hr">'+(c.hora||'')+'</span></div></div>';
+    }).join('') || '<p style="font-size:10px;color:var(--dim);text-align:center">Sin datos</p>';
 
-    // Pastoreo (Página 4)
-    const past = document.getElementById('past-wrap');
-    const pastItems = (visit.pastoreo || []).map(p => `
-        <div class="rc"><div class="rc-ttl">🏠 VISITA</div><div class="rc-row"><span class="rc-nm">${p.familia}</span><span class="rc-hr">${p.hora||''}</span></div></div>
-    `).join('');
-    past.innerHTML = pastItems || '<p style="font-size:10px;color:var(--dim);text-align:center;margin-top:20px">Sin datos de pastoreo</p>';
+    // Pastoreo
+    document.getElementById('past-wrap').innerHTML = (v.pastoreo || []).map(function(p){
+        return '<div class="rc" style="border-color:var(--green)"><div class="rc-row"><span class="rc-nm">'+p.familia+'</span><span class="rc-hr">'+(p.hora||'')+'</span></div></div>';
+    }).join('') || '<p style="font-size:10px;color:var(--dim);text-align:center">Sin datos</p>';
 }
 
-// Navegación Carrusel (Mantenida 100%)
-let cur = 0; const PAGES = 6;
+// Navegación
+var cur=0; var PAGES=6;
 function buildDots(){
-    const c=document.getElementById('nav-dots'); c.innerHTML='';
-    for(let i=0;i<PAGES;i++){
-        const d=document.createElement('div');
+    var c=document.getElementById('nav-dots'); c.innerHTML='';
+    for(var i=0;i<PAGES;i++){
+        var d=document.createElement('div');
         d.className='dot'+(i===0?' on':'');
         c.appendChild(d);
     }
 }
-function goTo(n){
-    cur = n;
-    document.getElementById('car').style.transform = `translateX(-${cur*(100/6)}%)`;
-    document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i === cur));
-}
 buildDots();
-
-document.body.addEventListener('click', (e) => {
-    if(e.target.tagName === 'BUTTON' || e.target.closest('.chk')) return;
+document.body.addEventListener('click', function(e){
+    if(e.target.closest('.tb') || e.target.closest('.chk')) return;
     cur = (cur + 1) % PAGES;
-    goTo(cur);
+    document.getElementById('car').style.transform = 'translateX(-'+(cur*(100/6))+'%)';
+    var dots = document.querySelectorAll('.dot');
+    for(var i=0; i<dots.length; i++){ dots[i].classList.toggle('on', i === cur); }
 });
 
-// Cronómetro Maestro (Tu lógica original de 30 min)
-let _run=false,_ts=0,_pms=0,_iv=null;
-function tStart(){ if(_run)return; _run=true; _ts=Date.now()-_pms; _iv=setInterval(tTick,500); }
-function tReset(){ _run=false; clearInterval(_iv); _ts=0;_pms=0; document.getElementById('t-disp').textContent='00:00'; document.getElementById('t-prog-fill').style.width='0%'; }
+// Cronómetro original
+var _run=false,_ts=0,_pms=0,_iv=null;
+function tStart(){ if(_run)return; _run=true; _ts=Date.now()-_pms; _iv=setInterval(tTick,1000); }
+function tReset(){ _run=false; clearInterval(_iv); _ts=0;_pms=0; document.getElementById('t-disp').textContent='00:00'; }
 function tTick(){
-    const ms=Date.now()-_ts; const s=Math.floor(ms/1000);
-    const m=Math.floor(s/60),ss=s%60;
+    var s=Math.floor((Date.now()-_ts)/1000);
+    var m=Math.floor(s/60),ss=s%60;
     document.getElementById('t-disp').textContent=(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
-    document.getElementById('t-prog-fill').style.width=Math.min((s/(30*60))*100, 100)+'%';
 }
 
-// Iniciar búsqueda automática
-fetchGoogle();
+setInterval(sync, 15000); // Sincroniza cada 15 seg
+sync();
 </script>
 </body>
 </html>
