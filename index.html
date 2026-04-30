@@ -4,183 +4,130 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover"/>
-<title>Super Asistente 360</title>
-
-<!-- FIREBASE COMPAT - Único método que el navegador del Watch 7 entiende -->
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore-compat.js"></script>
-
+<title>CircuitoWatch 360</title>
 <style>
 /* ════════════════════════════════════════
-   DISEÑO ORIGINAL DE BENJAMÍN (100% RESPETADO)
-   Galaxy Watch 7 · 432 × 432 px
+   DISEÑO ORIGINAL DE BENJAMÍN (INTEGRAL)
+   Optimizado para Migrañas · Galaxy Watch 7
 ════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#000010;
-  --b1:#0d1f42;
-  --blue:#4da8f8;--blue2:#7ec8ff;--blue-d:rgba(30,95,168,0.7);
-  --gold:#ffd060;--green:#5ce875;--red:#ff6060;--purple:#c084fc;
+  --blue:#4da8f8;--blue2:#7ec8ff;--gold:#ffd060;--green:#5ce875;--red:#ff6060;--purple:#c084fc;
   --text:#e8f4ff;--dim:#6a8fb8;--dim2:#3a5a7a;
-  --sz:432px;--half:216px;
+  --sz:432px;
 }
-
 html,body{
   width:100%;height:100%;max-width:var(--sz);max-height:var(--sz);
-  overflow:hidden;background:var(--bg);
-  font-family:'Segoe UI',Tahoma,sans-serif;
-  color:var(--text);
-  -webkit-tap-highlight-color:transparent;
-  -webkit-font-smoothing:antialiased;
+  overflow:hidden;background:var(--bg); font-family:sans-serif; color:var(--text);
 }
-
-/* Máscara Circular para Watch 7 */
 body::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
-  background: 
-    radial-gradient(circle at center,transparent 83%,rgba(0,0,16,0.95) 100%),
-    radial-gradient(circle at center,transparent 90%,#000010 100%);
+  background: radial-gradient(circle at center,transparent 83%,rgba(0,0,16,0.95) 100%);
 }
-
 .car-wrap{overflow:hidden;width:100%;height:100%;}
-.carousel{
-  display:flex;width:600%;height:100%;
-  transition:transform .3s cubic-bezier(.4,0,.2,1);
-  will-change:transform;
-}
-.page{
-  width:calc(100%/6);height:100%;flex-shrink:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-}
-.sz{ width:320px;display:flex;flex-direction:column;align-items:center; position:relative;z-index:1; }
-.sz.scroll{overflow-y:auto;max-height:305px;padding-bottom:50px;}
+.carousel{ display:flex;width:600%;height:100%; transition:transform .3s ease; }
+.page{ width:calc(100%/6);height:100%;flex-shrink:0; display:flex;flex-direction:column;align-items:center;justify-content:center; position:relative; }
+.sz{ width:310px;display:flex;flex-direction:column;align-items:center; position:relative; }
+.sz.scroll{overflow-y:auto;max-height:300px;padding-bottom:50px;}
 .sz.scroll::-webkit-scrollbar{display:none;}
 
 /* CABECERAS ORIGINALES */
-.pg-h{ font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700; color:var(--dim);margin-bottom:10px;text-align:center; }
-.h-date{font-size:9.5px;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:2px;}
-.h-cong{
-  font-size:15px;font-weight:700;color:#fff;text-align:center;
-  line-height:1.22;margin:3px 0 1px;max-width:215px;
-  text-shadow:0 0 22px rgba(77,168,248,0.4);
-}
-.h-city{font-size:9px;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
-
-/* ESTADÍSTICAS */
-.stat-g{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:205px;}
-.stat{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(77,168,248,0.15);
-  border-radius:9px;padding:7px 4px;text-align:center;
-}
-.stat-v{font-size:22px;font-weight:700;font-family:monospace;color:var(--blue);}
-.stat-l{font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.pg-h{ font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:10px;text-align:center;color:var(--dim); }
+.h-cong{ font-size:16px;font-weight:700;text-align:center;line-height:1.2;margin:4px 0; }
+.stat-g{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:220px;margin-top:10px;}
+.stat{ background:rgba(255,255,255,0.05);border-radius:10px;padding:8px;text-align:center; border:1px solid rgba(77,168,248,0.2); }
+.stat-v{font-size:22px;font-weight:bold;color:var(--blue);font-family:monospace;}
+.stat-l{font-size:7px;color:var(--dim);text-transform:uppercase;}
 
 /* CHECKLIST */
-.chk-wrap{width:100%;padding:0 34px;}
-.chk{
-  display:flex;align-items:center;gap:8px;padding:7px 9px;margin-bottom:4px;
-  border-radius:10px;background:rgba(255,255,255,0.035);
-  border:1px solid rgba(92,232,117,0.1); cursor:pointer;
-}
-.chk.done{ background:rgba(92,232,117,0.07); opacity:0.4; }
-.chk-ring{
-  width:24px;height:24px;border-radius:50%; border:2px solid rgba(92,232,117,0.4);
-  display:flex;align-items:center;justify-content:center;
-}
-.chk.done .chk-ring{ background:var(--green); border-color:var(--green); color:#000; }
-
-/* REUNIONES / COMIDAS / VISITAS */
-.rc{ width:100%;padding:10px;border-radius:12px;margin-bottom:6px; border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03); }
-.rc-row{display:flex;justify-content:space-between;align-items:center;}
-.rc-nm{font-size:12px;font-weight:bold;}
-.rc-hr{font-size:12px;color:var(--blue2);font-family:monospace;}
+.chk-wrap{width:100%;padding:0 30px;}
+.chk{ display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:5px; background:rgba(255,255,255,0.05);border-radius:12px; font-size:11px; border-left:4px solid var(--green); cursor:pointer;}
+.chk.done{opacity:0.2;text-decoration:line-through;}
 
 /* CRONÓMETRO */
-.t-disp{ font-family:monospace;font-size:54px;font-weight:700; color:var(--blue);letter-spacing:5px;line-height:1; margin-bottom:10px; }
-.tb{ width:54px;height:54px;border-radius:50%;border:none; cursor:pointer;font-size:20px; display:flex;align-items:center;justify-content:center; }
-.tb-go{background:linear-gradient(135deg,#1a7a3a,#0a4a1a);border:2px solid rgba(92,232,117,0.25);color:white;}
-.tb-rs{background:linear-gradient(135deg,#7a1e1e,#4a0d0d);border:2px solid rgba(255,96,96,0.2);color:white;}
+.t-disp{ font-family:monospace;font-size:54px;font-weight:bold;color:var(--blue);margin-bottom:10px;}
+.tb{ width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:none;}
 
-/* PANEL DE CONTROL (PARA EL CELULAR) */
-#admin-overlay {
-  display:none; position:fixed; inset:0; background:#000; z-index:2000;
-  flex-direction:column; padding:20px; overflow-y:auto;
+/* DOTS */
+.nav-dots{ position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:7px; z-index:100; }
+.dot{width:7px;height:7px;border-radius:50%;background:#333;}
+.dot.on{background:var(--blue);width:16px;border-radius:3.5px;}
+
+/* PANEL DE ADMINISTRACIÓN (SOLO CELULAR) */
+#admin-panel {
+    display: none; position: fixed; inset: 0; background: #000; z-index: 2000;
+    flex-direction: column; padding: 20px; overflow-y: auto;
 }
-textarea { width:100%; height:250px; background:#111; border:1px solid #333; color:var(--blue); padding:15px; border-radius:15px; font-family:monospace; font-size:12px; margin-bottom:15px; }
-.btn-save { width:100%; background:var(--blue); color:#000; font-weight:bold; padding:20px; border-radius:15px; border:none; }
-.btn-admin-trigger { display:none; margin-top:15px; background:rgba(255,255,255,0.05); border:1px solid #333; color:var(--dim); padding:8px 15px; border-radius:20px; font-size:10px; }
+textarea { width: 100%; height: 250px; background: #111; border: 1px solid #333; color: #4da8f8; padding: 15px; border-radius: 15px; font-family: monospace; font-size: 11px; margin-bottom: 20px; }
+.btn-sync { background: #4da8f8; color: #000; font-weight: bold; padding: 20px; border-radius: 15px; border: none; font-size: 16px; width: 100%; }
 
-#sync-indicator { position:fixed; top:40px; left:50%; transform:translateX(-50%); font-size:8px; font-weight:bold; z-index:1001; padding:2px 10px; border-radius:10px; background:rgba(0,0,0,0.6); }
+#sync-tag{ position:fixed;top:40px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:bold;z-index:1000;background:rgba(0,0,0,0.6);padding:2px 10px;border-radius:10px;color:var(--gold);}
+#open-admin { position: fixed; bottom: 45px; right: 45px; width: 45px; height: 45px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 1001; color: #555; }
 </style>
 </head>
 <body>
 
-<div id="sync-indicator" style="color:var(--gold)">CONECTANDO NUBE...</div>
+<div id="sync-tag">INICIANDO...</div>
 
-<!-- PANEL QUE SE ABRE EN EL S24 ULTRA -->
-<div id="admin-overlay">
-  <h2 style="color:#fff; margin-bottom:10px">Super Asistente 360</h2>
-  <p style="color:#666; font-size:12px; margin-bottom:15px">Pegue el contenido del JSON de su APK abajo:</p>
-  <textarea id="json-input" placeholder='{"data": ... }'></textarea>
-  <button id="btn-sync-action" class="btn-save" onclick="subirDatos()">SINCRONIZAR CON RELOJ</button>
-  <button onclick="document.getElementById('admin-overlay').style.display='none'" style="margin-top:20px; background:none; border:none; color:red; font-weight:bold">CERRAR</button>
+<div id="admin-panel">
+    <h2 style="color: #fff; margin-bottom: 5px;">Sincronizador 360</h2>
+    <p style="color: #666; font-size: 12px; margin-bottom: 20px;">Pegue el texto del JSON de su APK abajo:</p>
+    <textarea id="jsonInput" placeholder='{"data": ... }'></textarea>
+    <button class="btn-sync" id="btnSync" onclick="subirDatos()">SINCRONIZAR CON RELOJ</button>
+    <button onclick="document.getElementById('admin-panel').style.display='none'" style="margin-top: 20px; background: none; border: none; color: #ff6060; width: 100%; font-weight: bold;">CERRAR PANEL</button>
 </div>
+
+<div id="open-admin" onclick="document.getElementById('admin-panel').style.display='flex'">⚙️</div>
 
 <div class="car-wrap">
 <div class="carousel" id="car">
-
+  
   <!-- P0: HOME -->
-  <div class="page" id="p0">
-    <div class="sz">
-      <div class="h-date">Superintendente</div>
-      <div class="h-cong" id="h-cong">Sin Datos</div>
-      <div class="h-city" id="h-city">Conectando...</div>
-      <div class="stat-g">
-        <div class="stat"><div class="stat-v" id="s-eb">0</div><div class="stat-l">Prom EB</div></div>
-        <div class="stat"><div class="stat-v" id="s-rp">0</div><div class="stat-l">Prom RP</div></div>
-        <div class="stat"><div class="stat-v" id="s-cur" style="color:var(--blue2)">0</div><div class="stat-l">Cursos</div></div>
-        <div class="stat"><div class="stat-v" id="s-pub" style="color:var(--green)">0</div><div class="stat-l">Pub.</div></div>
-      </div>
-      <button id="btn-config" class="btn-admin-trigger" onclick="document.getElementById('admin-overlay').style.display='flex'">⚙️ PANEL DE CARGA</button>
+  <div class="page" id="p0"><div class="sz">
+    <div style="font-size:9px;color:var(--dim);letter-spacing:2px">HOY</div>
+    <div class="h-cong" id="h-cong">Sin Datos</div>
+    <div class="stat-g">
+      <div class="stat"><div class="stat-v" id="s-eb">—</div><div class="stat-l">Prom EB</div></div>
+      <div class="stat"><div class="stat-v" id="s-rp">—</div><div class="stat-l">Prom RP</div></div>
+      <div class="stat"><div class="stat-v" id="s-cur" style="color:var(--blue2)">—</div><div class="stat-l">Cursos</div></div>
+      <div class="stat"><div class="stat-v" id="s-pub" style="color:var(--green)">—</div><div class="stat-l">Pub.</div></div>
     </div>
-  </div>
+  </div></div>
 
   <!-- P1: AGENDA -->
-  <div class="page" style="justify-content:flex-start;padding-top:48px">
-    <div class="sz scroll">
-      <div class="pg-h green">✅ AGENDA DEL DÍA</div>
-      <div id="chk-wrap" class="chk-wrap"></div>
+  <div class="page" style="justify-content:flex-start;padding-top:60px"><div class="sz scroll">
+    <div class="pg-h" style="color:var(--green)">✅ AGENDA DEL DÍA</div>
+    <div class="chk-wrap" id="chk-list"></div>
+  </div></div>
+
+  <!-- P2: REUNIONES -->
+  <div class="page" style="justify-content:flex-start;padding-top:60px"><div class="sz scroll">
+    <div class="pg-h" style="color:var(--purple)">🗓 REUNIONES</div>
+    <div id="reu-list" style="width:100%;padding:0 30px"></div>
+  </div></div>
+
+  <!-- P3: COMIDAS -->
+  <div class="page" style="justify-content:flex-start;padding-top:60px"><div class="sz scroll">
+    <div class="pg-h" style="color:var(--gold)">🍽 COMIDAS</div>
+    <div id="com-list" style="width:100%;padding:0 30px"></div>
+  </div></div>
+
+  <!-- P4: PASTOREO -->
+  <div class="page" style="justify-content:flex-start;padding-top:60px"><div class="sz scroll">
+    <div class="pg-h" style="color:var(--green)">🏠 PASTOREO</div>
+    <div id="past-list" style="width:100%;padding:0 30px"></div>
+  </div></div>
+
+  <!-- P5: CRONÓMETRO -->
+  <div class="page"><div class="sz">
+    <div class="pg-h" style="color:var(--blue)">⏱ CRONÓMETRO</div>
+    <div class="t-disp" id="t-disp">00:00</div>
+    <div style="display:flex;gap:20px">
+      <div class="tb" style="background:#1a4a1a;color:var(--green)" onclick="tStart()">▶</div>
+      <div class="tb" style="background:#4a0d0d;color:var(--red)" onclick="tReset()">↺</div>
     </div>
-  </div>
-
-  <!-- P2, P3, P4, P5 Mantenidos igual que tu original -->
-  <div class="page" style="justify-content:flex-start;padding-top:48px"><div class="sz scroll">
-    <div class="pg-h purple">🗓 REUNIONES</div>
-    <div id="reu-wrap" style="width:100%;padding:0 30px"></div>
   </div></div>
-
-  <div class="page" style="justify-content:flex-start;padding-top:48px"><div class="sz scroll">
-    <div class="pg-h gold">🍽 COMIDAS</div>
-    <div id="com-wrap" style="width:100%;padding:0 30px"></div>
-  </div></div>
-
-  <div class="page" style="justify-content:flex-start;padding-top:48px"><div class="sz scroll">
-    <div class="pg-h green">🏠 PASTOREO</div>
-    <div id="past-wrap" style="width:100%;padding:0 30px"></div>
-  </div></div>
-
-  <div class="page" id="p5">
-    <div class="sz">
-      <div class="pg-h blue">⏱ CRONÓMETRO</div>
-      <div class="t-disp" id="t-disp">00:00</div>
-      <div class="t-btns" style="display:flex;gap:20px">
-        <div class="tb tb-go" onclick="tStart()">▶</div>
-        <div class="tb tb-rs" onclick="tReset()">↺</div>
-      </div>
-    </div>
-  </div>
 
 </div>
 </div>
@@ -188,83 +135,86 @@ textarea { width:100%; height:250px; background:#111; border:1px solid #333; col
 <div class="nav-dots" id="nav-dots"></div>
 
 <script>
-// --- LÓGICA DE NUBE AUTOMÁTICA ---
-const firebaseConfig = JSON.parse(__firebase_config);
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'benjamin-360';
+// --- MOTOR DE SINCRONIZACIÓN BENJAMÍN ---
+// Un buzón único para que el celular y el reloj se encuentren
+const BUZON_KEY = "benjamin_360_master_final_v1";
 
-// 1. Conexión y Escucha
-firebase.auth().signInAnonymously().then(() => {
-    document.getElementById('sync-indicator').innerText = "CONECTADO";
-    document.getElementById('sync-indicator').style.color = "var(--green)";
-
-    // Escuchar cambios en tiempo real
-    db.collection('artifacts').doc(appId).collection('public').doc('data').collection('itinerario').doc('actual')
-    .onSnapshot(doc => {
-        if(doc.exists) {
-            renderUI(doc.data().data);
-        }
-    });
-});
-
-// 2. Función para Subir Datos (S24 Ultra)
 async function subirDatos() {
-    const raw = document.getElementById('json-input').value.trim();
+    const input = document.getElementById('jsonInput');
+    const btn = document.getElementById('btnSync');
+    
+    // 1. Limpieza de texto (Quitar espacios, comillas inteligentes, etc.)
+    let raw = input.value.trim()
+        .replace(/[\u201C\u201D]/g, '"') // Cambia comillas inteligentes por normales
+        .replace(/[\u2018\u2019]/g, "'");
+
     if(!raw) return;
 
-    const btn = document.getElementById('btn-sync-action');
-    btn.innerText = "SUBIENDO...";
-    btn.disabled = true;
-
     try {
-        const jsonData = JSON.parse(raw);
-        await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('itinerario').doc('actual').set({
-            data: jsonData,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        const dataParsed = JSON.parse(raw); // Si esto falla, el JSON está mal
+        btn.innerText = "SINCRONIZANDO...";
+        btn.disabled = true;
+
+        const res = await fetch(`https://kvdb.io/S9L5GqBv6vJqYx7uJp7uJp/${BUZON_KEY}`, {
+            method: 'POST',
+            body: JSON.stringify(dataParsed)
         });
-        alert("¡Sincronización Exitosa!");
-        document.getElementById('admin-overlay').style.display = 'none';
+
+        if(res.ok) {
+            alert("¡ÉXITO! Datos enviados al reloj.");
+            document.getElementById('admin-panel').style.display = 'none';
+            descargarDelBuzon();
+        }
     } catch(e) {
-        alert("Error: El texto no es un JSON válido. Asegúrese de copiar todo el texto del archivo.");
+        alert("ERROR: El texto no es válido. Asegúrese de copiar TODO el contenido del archivo JSON desde el primer { hasta el último }.");
     } finally {
         btn.innerText = "SINCRONIZAR CON RELOJ";
         btn.disabled = false;
     }
 }
 
-function renderUI(d) {
-    const data = d.data || d;
-    const cong = data.congregaciones[0];
-    const visit = (cong.visitas || []).slice(-1)[0];
+async function descargarDelBuzon() {
+    try {
+        const res = await fetch(`https://kvdb.io/S9L5GqBv6vJqYx7uJp7uJp/${BUZON_KEY}`);
+        if(res.ok) {
+            const json = await res.json();
+            render(json.data || json);
+            document.getElementById('sync-tag').innerText = "SINCRO OK";
+            document.getElementById('sync-tag').style.color = "var(--green)";
+        }
+    } catch(e) { document.getElementById('sync-tag').innerText = "BUSCANDO..."; }
+}
+
+function render(d) {
+    const cong = d.congregaciones[0];
+    const v = (cong.visitas || []).slice(-1)[0];
 
     document.getElementById('h-cong').innerText = cong.nombre;
-    document.getElementById('h-city').innerText = cong.ciudad || 'Circuito Activo';
-    document.getElementById('s-eb').innerText = (visit.eb || [])[0] || '0';
-    document.getElementById('s-rp').innerText = (visit.rp || [])[0] || '0';
-    document.getElementById('s-cur').innerText = (visit.cursos || [])[0] || '0';
-    document.getElementById('s-pub').innerText = (visit.publicadores || [])[0] || '0';
+    document.getElementById('s-eb').innerText = (v.eb || [])[0] || '0';
+    document.getElementById('s-rp').innerText = (v.rp || [])[0] || '0';
+    document.getElementById('s-cur').innerText = (v.cursos || [])[0] || '0';
+    document.getElementById('s-pub').innerText = (v.publicadores || [])[0] || '0';
 
     // Agenda
     const agenda = [];
-    if(visit.reu_vm_dia) agenda.push("⚡ VMC: " + visit.reu_vm_hora);
-    (visit.pastoreo || []).forEach(p => agenda.push("🏠 " + p.familia));
-    document.getElementById('chk-wrap').innerHTML = agenda.map(t => `<div class="chk" onclick="this.classList.toggle('done')"><div class="chk-ring">✓</div><span class="chk-txt">${t}</span></div>`).join('');
+    if(v.reu_vm_dia) agenda.push("⚡ VMC: " + v.reu_vm_hora);
+    (v.pastoreo || []).forEach(p => agenda.push("🏠 " + p.familia));
+    document.getElementById('chk-list').innerHTML = agenda.map(t => `<div class="chk" onclick="this.classList.toggle('done')"><div class="chk-ring">✓</div><span class="chk-txt">${t}</span></div>`).join('');
 
-    // Reuniones, Comidas, Pastoreo (Tu lógica original restaurada)
-    document.getElementById('reu-wrap').innerHTML = `
-        <div class="rc" style="border-left:4px solid var(--purple)"><div class="rc-row"><span>VMC</span><span class="rc-hr">${visit.reu_vm_hora||'—'}</span></div></div>
-        <div class="rc" style="border-left:4px solid var(--blue)"><div class="rc-row"><span>PÚBLICA</span><span class="rc-hr">${visit.reu_rp_hora||'—'}</span></div></div>
+    // Listas de Reuniones, Comidas y Pastoreo
+    document.getElementById('reu-list').innerHTML = `
+        <div class="rc" style="border-left:4px solid var(--purple)"><div class="rc-row"><span>VMC</span><span class="rc-hr">${v.reu_vm_hora||'—'}</span></div></div>
+        <div class="rc" style="border-left:4px solid var(--blue)"><div class="rc-row"><span>PÚBLICA</span><span class="rc-hr">${v.reu_rp_hora||'—'}</span></div></div>
     `;
+    document.getElementById('com-list').innerHTML = (v.comidas || []).map(c => `<div class="rc" style="border-left:4px solid var(--gold)"><div class="rc-row"><span>${c.familia}</span><span class="rc-hr">${c.hora||''}</span></div></div>`).join('') || '<p style="text-align:center;font-size:10px;color:#444">Sin datos</p>';
+    document.getElementById('past-list').innerHTML = (v.pastoreo || []).map(p => `<div class="rc" style="border-left:4px solid var(--green)"><div class="rc-row"><span>${p.familia}</span><span class="rc-hr">${p.hora||''}</span></div></div>`).join('') || '<p style="text-align:center;font-size:10px;color:#444">Sin datos</p>';
 }
 
-// Mostrar botón de carga solo en el celular
-if(window.innerWidth > 500) {
-    document.getElementById('btn-config').style.display = 'block';
-}
+// Interfaz
+if(window.innerWidth > 500) document.getElementById('open-admin').style.display = 'flex';
 
-// --- TU LÓGICA DE NAVEGACIÓN Y CRONÓMETRO ORIGINALES (SIN CAMBIOS) ---
-let cur = 0; const PAGES = 6;
+// Navegación original
+let cur=0; const PAGES=6;
 function buildDots(){
     const c=document.getElementById('nav-dots'); c.innerHTML='';
     for(let i=0;i<PAGES;i++){
@@ -273,18 +223,16 @@ function buildDots(){
         c.appendChild(d);
     }
 }
-function goTo(n){
-    cur = n;
+buildDots();
+document.body.addEventListener('click', (e) => {
+    if(e.target.tagName === 'BUTTON' || e.target.closest('.chk') || e.target.id === 'open-admin') return;
+    cur = (cur + 1) % PAGES;
     document.getElementById('car').style.transform = `translateX(-${cur*(100/6)}%)`;
     const dots = document.querySelectorAll('.dot');
     dots.forEach((d,i) => d.classList.toggle('on', i === cur));
-}
-buildDots();
-document.body.addEventListener('click', (e) => {
-    if(e.target.tagName === 'BUTTON' || e.target.closest('.chk')) return;
-    cur = (cur + 1) % PAGES; goTo(cur);
 });
 
+// Cronómetro original
 let _run=false,_ts=0,_pms=0,_iv=null;
 function tStart(){ if(_run)return; _run=true; _ts=Date.now()-_pms; _iv=setInterval(tTick,1000); }
 function tReset(){ _run=false; clearInterval(_iv); _ts=0;_pms=0; document.getElementById('t-disp').textContent='00:00'; }
@@ -293,6 +241,8 @@ function tTick(){
     const m=Math.floor(s/60),ss=s%60;
     document.getElementById('t-disp').textContent=(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
 }
+
+setInterval(descargarDelBuzon, 30000); descargarDelBuzon();
 </script>
 </body>
 </html>
