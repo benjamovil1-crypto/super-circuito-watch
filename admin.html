@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargar Datos - Super CircuitoApp</title>
+    <title>Sincronizador Benjamín 360</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
@@ -12,74 +12,117 @@
 </head>
 <body class="bg-[#000010] text-slate-200 min-h-screen flex flex-col items-center p-6 font-sans">
     
-    <header class="w-full max-w-md mb-10 mt-8">
-        <h1 class="text-3xl font-bold text-white">Sincronizador</h1>
-        <p class="text-blue-400 text-sm font-bold uppercase tracking-widest mt-1">Puente para Watch 7</p>
+    <header class="w-full max-w-md mb-8 mt-4 text-center">
+        <h1 class="text-3xl font-bold text-white tracking-tight">Sincronizador</h1>
+        <p class="text-blue-400 text-xs font-black uppercase tracking-[0.3em] mt-2">Puente de Datos Watch 7</p>
     </header>
 
-    <main class="w-full max-w-md bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center shadow-2xl">
-        <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
-            <svg class="text-blue-500" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <main class="w-full max-w-md bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-center shadow-2xl relative">
+        <!-- Pantalla de Error si falta configuración -->
+        <div id="config-error" class="hidden">
+            <div class="text-amber-500 mb-4 text-sm font-bold uppercase">⚠️ Falta Configuración</div>
+            <p class="text-xs text-slate-400 mb-4">Para que el sincronizador funcione en GitHub, pega tu configuración de Firebase abajo:</p>
+            <textarea id="config-input" class="w-full h-32 bg-black border border-white/10 rounded-xl p-2 text-[10px] text-blue-300 font-mono" placeholder='{"apiKey": "...", "authDomain": "...", ...}'></textarea>
+            <button onclick="saveConfigManual()" class="mt-4 w-full bg-blue-600 py-3 rounded-xl font-bold text-sm">GUARDAR CONFIGURACIÓN</button>
         </div>
-        
-        <h2 class="text-xl font-bold text-white mb-2">Subir JSON</h2>
-        <p class="text-slate-500 text-sm mb-8 px-4">Carga el respaldo de tu Super CircuitoApp para que aparezca en tu reloj automáticamente.</p>
 
-        <label class="block w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold py-5 rounded-2xl cursor-pointer transition-all">
-            SELECCIONAR ARCHIVO
+        <!-- Pantalla de Carga normal -->
+        <div id="main-ui">
+            <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
+                <svg class="text-blue-500" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            
+            <h2 class="text-xl font-bold text-white mb-2">Reflejar APK</h2>
+            <p class="text-slate-500 text-sm mb-8">Elige el JSON de tu Super CircuitoApp.</p>
+
             <input type="file" id="fileInput" class="hidden" accept=".json">
-        </label>
+            <button id="uploadBtn" onclick="document.getElementById('fileInput').click()" class="w-full bg-blue-600 py-5 rounded-2xl font-bold transition-all shadow-lg shadow-blue-900/20 active:scale-95 disabled:opacity-50 disabled:bg-slate-700" disabled>
+                SELECCIONAR ARCHIVO
+            </button>
 
-        <div id="status" class="mt-6 text-[10px] font-black uppercase tracking-widest text-blue-500 border-t border-white/5 pt-4">
-            Esperando archivo...
+            <div id="status" class="mt-8 text-[10px] font-black uppercase tracking-widest text-slate-500 border-t border-white/5 pt-6">
+                ESTADO: INICIALIZANDO...
+            </div>
         </div>
     </main>
 
     <script>
-        const firebaseConfig = JSON.parse(__firebase_config);
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
+        let db, auth, appId;
         const statusEl = document.getElementById('status');
-        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
 
-        // Autenticación obligatoria (Regla 3)
-        auth.signInAnonymously().then(() => {
-            statusEl.innerText = "Conexión Lista";
-        });
+        // Función para intentar inicializar
+        async function init() {
+            let config;
+            try {
+                // Primero intentamos la del sistema
+                config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+                // Si no, la de localStorage (manual)
+                if (!config) config = JSON.parse(localStorage.getItem('benjamin_fb_config'));
+            } catch (e) { console.error("Config error", e); }
 
-        fileInput.addEventListener('change', (e) => {
+            if (!config) {
+                document.getElementById('main-ui').classList.add('hidden');
+                document.getElementById('config-error').classList.remove('hidden');
+                return;
+            }
+
+            try {
+                firebase.initializeApp(config);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'super-circuito-360';
+
+                await auth.signInAnonymously();
+                statusEl.innerText = "ESTADO: LISTO PARA SUBIR";
+                statusEl.classList.replace('text-slate-500', 'text-green-500');
+                uploadBtn.disabled = false;
+            } catch (e) {
+                statusEl.innerText = "ERROR DE CONEXIÓN: " + e.message;
+                statusEl.classList.replace('text-slate-500', 'text-red-500');
+            }
+        }
+
+        function saveConfigManual() {
+            const val = document.getElementById('config-input').value;
+            if (val) {
+                localStorage.setItem('benjamin_fb_config', val);
+                location.reload();
+            }
+        }
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
+            statusEl.innerText = "LEYENDO ARCHIVO...";
             const reader = new FileReader();
             reader.onload = async (event) => {
                 try {
-                    const jsonData = JSON.parse(event.target.result);
-                    statusEl.innerText = "Sincronizando con el Watch...";
-
-                    // Guardar en Firestore (Regla 1: Path estricto)
+                    const json = JSON.parse(event.target.result);
+                    statusEl.innerText = "SUBIENDO AL RELOJ...";
+                    
+                    // RUTA ESTRICTA SEGÚN REGLA 1
                     await db.collection('artifacts').doc(appId)
                             .collection('public').doc('data')
                             .collection('itinerario').doc('actual').set({
-                                data: jsonData,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                                data: json,
+                                syncAt: new Date().getTime()
                             });
 
-                    statusEl.innerText = "¡Sincronización Exitosa!";
-                    statusEl.classList.add('text-green-500');
+                    statusEl.innerText = "¡SINCRONIZACIÓN EXITOSA!";
+                    statusEl.classList.replace('text-slate-500', 'text-green-400');
                 } catch (err) {
-                    statusEl.innerText = "Error: JSON no válido";
-                    statusEl.classList.add('text-red-500');
+                    statusEl.innerText = "ERROR: ARCHIVO NO VÁLIDO";
+                    statusEl.classList.replace('text-slate-500', 'text-red-500');
                 }
             };
             reader.readAsText(file);
         });
+
+        init();
     </script>
 </body>
 </html>
 
 ```
-
