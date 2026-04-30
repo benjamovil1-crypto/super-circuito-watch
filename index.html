@@ -4,14 +4,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover"/>
-<title>CircuitoWatch Sincro</title>
-<!-- Firebase SDK necesario para la antena de datos -->
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore-compat.js"></script>
+<title>CircuitoWatch 360</title>
 <style>
 /* ════════════════════════════════════════
-   Tu diseño original mantenido al 100%
+   CIRCUITO WATCH — Galaxy Watch 7
+   DISEÑO ORIGINAL DE BENJAMÍN (100% RESPETADO)
 ════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -32,116 +29,156 @@ html,body{
   -webkit-font-smoothing:antialiased;
 }
 
+/* Efecto Máscara AMOLED */
 body::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
-  background: radial-gradient(circle at center,transparent 83%,rgba(0,0,16,0.95) 100%), radial-gradient(circle at center,transparent 90%,#000010 100%);
+  background: 
+    radial-gradient(circle at center,transparent 83%,rgba(0,0,16,0.95) 100%),
+    radial-gradient(circle at center,transparent 90%,#000010 100%);
 }
 
+/* CAROUSEL MASTER */
 .car-wrap{overflow:hidden;width:100%;height:100%;}
-.carousel{ display:flex;width:600%;height:100%; transition:transform .3s cubic-bezier(.4,0,.2,1); will-change:transform; }
-.page{ width:calc(100%/6);height:100%;flex-shrink:0; display:flex;flex-direction:column;align-items:center;justify-content:center; position:relative;overflow:hidden; }
+.carousel{
+  display:flex;width:600%;height:100%;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+}
+.page{
+  width:calc(100%/6);height:100%;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
 .sz{ width:320px;display:flex;flex-direction:column;align-items:center; position:relative;z-index:1; }
-.sz.scroll{overflow-y:auto;max-height:320px;}
+.sz.scroll{overflow-y:auto;max-height:305px;padding-bottom:40px;}
 .sz.scroll::-webkit-scrollbar{display:none;}
 
+/* ENCABEZADOS ORIGINALES */
 .pg-h{ font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700; color:var(--dim);margin-bottom:10px;text-align:center; }
 .pg-h.blue{color:var(--blue);} .pg-h.gold{color:var(--gold);} .pg-h.green{color:var(--green);} .pg-h.purple{color:var(--purple);}
 
-.nav-dots{ position:fixed;bottom:18px;left:50%;transform:translateX(-50%); display:flex;gap:7px;z-index:100; }
-.dot{ width:7px;height:7px;border-radius:50%; background:var(--dim2);transition:all .22s;cursor:pointer; }
-.dot.on{background:var(--blue);width:16px;border-radius:3.5px;}
-
-/* Estilos de elementos */
 .h-date{font-size:9.5px;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:2px;}
-.h-cong{ font-size:15px;font-weight:700;color:#fff;text-align:center; line-height:1.22;margin:3px 0 1px;max-width:215px; text-shadow:0 0 22px rgba(77,168,248,0.4); }
+.h-cong{
+  font-size:15px;font-weight:700;color:#fff;text-align:center;
+  line-height:1.22;margin:3px 0 1px;max-width:215px;
+  text-shadow:0 0 22px rgba(77,168,248,0.4);
+}
+.h-city{font-size:9px;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+
+/* STAT CARDS */
 .stat-g{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:205px;}
-.stat{ background:rgba(255,255,255,0.04);border:1px solid rgba(77,168,248,0.15); border-radius:9px;padding:7px 4px;text-align:center; position:relative;overflow:hidden; }
+.stat{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(77,168,248,0.15);
+  border-radius:9px;padding:7px 4px;text-align:center;
+}
 .stat-v{font-size:22px;font-weight:700;font-family:monospace;color:var(--blue);}
 .stat-l{font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;}
 
-.chk-wrap{width:100%;max-height:305px;overflow-y:auto;padding:0 34px;}
-.chk{ display:flex;align-items:center;gap:8px;padding:7px 9px;margin-bottom:4px; border-radius:10px;background:rgba(255,255,255,0.035); border:1px solid rgba(92,232,117,0.1); cursor:pointer; min-height:42px; }
-.chk.done{ background:rgba(92,232,117,0.07); border-color:rgba(92,232,117,0.18); }
-.chk-ring{ width:24px;height:24px;min-width:24px;border-radius:50%; border:2px solid rgba(92,232,117,0.4); display:flex;align-items:center;justify-content:center; font-size:12px; font-weight:700; color:transparent; }
+/* CHECKLIST */
+.chk-wrap{width:100%;padding:0 34px;}
+.chk{
+  display:flex;align-items:center;gap:8px;padding:7px 9px;margin-bottom:4px;
+  border-radius:10px;background:rgba(255,255,255,0.035);
+  border:1px solid rgba(92,232,117,0.1); cursor:pointer; min-height:42px;
+}
+.chk.done{ background:rgba(92,232,117,0.07); opacity:0.5; }
+.chk-ring{
+  width:24px;height:24px;min-width:24px;border-radius:50%;
+  border:2px solid rgba(92,232,117,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px; font-weight:700; color:transparent;
+}
 .chk.done .chk-ring{ background:var(--green);border-color:var(--green);color:#000; }
-.chk-txt{ font-size:10.5px;line-height:1.3; white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.chk.done .chk-txt{text-decoration:line-through;color:var(--dim);opacity:0.55;}
+.chk-txt{ font-size:10.5px;line-height:1.3; }
 
+/* REUNIONES Y COMIDAS */
 .rc{ width:100%;padding:8px 10px;border-radius:10px;margin-bottom:5px; border:1px solid rgba(192,132,252,0.2);background:rgba(192,132,252,0.05); }
 .rc.blue{border-color:rgba(77,168,248,0.2);background:rgba(77,168,248,0.05);}
-.rc-nm{font-size:11.5px;color:var(--text);}
-.rc-hr{font-size:12px;color:var(--blue2);font-family:monospace;font-weight:700;}
+.rc.gold{border-color:rgba(255,208,96,0.2);background:rgba(255,208,96,0.05);}
+.rc-ttl{font-size:8px;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
+.rc-row{display:flex;justify-content:space-between;align-items:center;}
+.rc-nm{font-size:11.5px;color:var(--text);font-weight:600;}
+.rc-hr{font-size:12px;color:var(--blue2);font-family:monospace;}
 
-.t-disp{ font-family:monospace;font-size:54px;font-weight:700; color:var(--blue);letter-spacing:5px;line-height:1; text-shadow:0 0 30px rgba(77,168,248,0.45);margin-bottom:6px; }
+/* CRONÓMETRO */
+.t-disp{ font-family:monospace;font-size:54px;font-weight:700; color:var(--blue);letter-spacing:5px;line-height:1; margin-bottom:6px; }
+.t-prog{ width:180px;height:5px;background:#111;border-radius:3px;overflow:hidden;margin-bottom:20px; border:1px solid rgba(255,255,255,0.05); }
+.t-prog-fill{ width:0%;height:100%;background:var(--blue); }
+.t-btns{ display:flex;gap:20px; }
 .tb{ width:54px;height:54px;border-radius:50%;border:none; cursor:pointer;font-size:20px; display:flex;align-items:center;justify-content:center; }
-.tb-go{background:linear-gradient(135deg,#1a7a3a,#0a4a1a);border:2px solid rgba(92,232,117,0.25);}
-.tb-ps{background:linear-gradient(135deg,#1e5fa8,#0d3a78);border:2px solid rgba(77,168,248,0.25);}
-.tb-rs{background:linear-gradient(135deg,#7a1e1e,#4a0d0d);border:2px solid rgba(255,96,96,0.2);}
+.tb-go{background:linear-gradient(135deg,#1a7a3a,#0a4a1a);border:2px solid rgba(92,232,117,0.25);color:white;}
+.tb-rs{background:linear-gradient(135deg,#7a1e1e,#4a0d0d);border:2px solid rgba(255,96,96,0.2);color:white;}
 
-.sync-status{
-    position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
-    font-size: 7px; color: var(--green); letter-spacing: 1px; font-weight: bold;
-    z-index: 1000; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px;
-}
+/* NAVEGACIÓN DOTS */
+.nav-dots{ position:fixed;bottom:18px;left:50%;transform:translateX(-50%); display:flex;gap:7px;z-index:100; }
+.dot{ width:7px;height:7px;border-radius:50%; background:var(--dim2); }
+.dot.on{background:var(--blue);width:16px;border-radius:3.5px;}
+
+#sync-tag{ position:fixed;top:38px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:bold;z-index:1001;padding:2px 8px;border-radius:10px;background:rgba(0,0,0,0.6);}
 </style>
 </head>
 <body>
 
-<div class="sync-status" id="sync-status">📡 SINCRONIZADO</div>
+<div id="sync-tag" style="color:var(--gold)">SINCRONIZANDO GOOGLE...</div>
 
 <div class="car-wrap">
 <div class="carousel" id="car">
 
+  <!-- P0: HOY -->
   <div class="page" id="p0">
     <div class="sz">
-      <div class="h-date" id="h-date">HOY</div>
-      <div class="h-cong" id="h-cong">Sin datos</div>
-      <div class="h-city" id="h-city">—</div>
+      <div class="h-date">Semana Actual</div>
+      <div class="h-cong" id="h-cong">Suba el JSON</div>
+      <div class="h-city" id="h-city">Esperando conexión</div>
       <div class="stat-g">
-        <div class="stat"><div class="stat-v" id="s-eb">—</div><div class="stat-l">Prom EB</div></div>
-        <div class="stat"><div class="stat-v" id="s-rp">—</div><div class="stat-l">Prom RP</div></div>
-        <div class="stat"><div class="stat-v" id="s-cur" style="color:var(--blue2)">—</div><div class="stat-l">Cursos</div></div>
-        <div class="stat"><div class="stat-v" id="s-pub" style="color:var(--green)">—</div><div class="stat-l">Pub.</div></div>
+        <div class="stat"><div class="stat-v" id="s-eb">0</div><div class="stat-l">Prom EB</div></div>
+        <div class="stat"><div class="stat-v" id="s-rp">0</div><div class="stat-l">Prom RP</div></div>
+        <div class="stat"><div class="stat-v" id="s-cur" style="color:var(--blue2)">0</div><div class="stat-l">Cursos</div></div>
+        <div class="stat"><div class="stat-v" id="s-pub" style="color:var(--green)">0</div><div class="stat-l">Pub.</div></div>
       </div>
     </div>
   </div>
 
+  <!-- P1: AGENDA -->
   <div class="page" id="p1" style="justify-content:flex-start;padding-top:48px">
-    <div class="sz">
+    <div class="sz scroll">
       <div class="pg-h green">✅ AGENDA DEL DÍA</div>
-      <div class="chk-wrap" id="chk-wrap"></div>
+      <div id="chk-wrap"></div>
     </div>
   </div>
 
-  <div class="page" id="p2" style="justify-content:flex-start;padding-top:50px">
+  <!-- P2: REUNIONES -->
+  <div class="page" id="p2" style="justify-content:flex-start;padding-top:48px">
     <div class="sz scroll" style="padding:0 34px">
       <div class="pg-h purple">🗓 REUNIONES</div>
-      <div class="rc"><div class="rc-ttl">⚡ VMC</div><div class="rc-row"><span class="rc-nm" id="vm-d">—</span><span class="rc-hr" id="vm-h">—</span></div></div>
-      <div class="rc blue"><div class="rc-ttl">🏛 PUBLICA</div><div class="rc-row"><span class="rc-nm" id="rp-d">—</span><span class="rc-hr" id="rp-h">—</span></div></div>
+      <div id="reu-wrap"></div>
     </div>
   </div>
 
-  <div class="page" id="p3" style="justify-content:flex-start;padding-top:50px">
+  <!-- P3: COMIDAS -->
+  <div class="page" id="p3" style="justify-content:flex-start;padding-top:48px">
     <div class="sz scroll" style="padding:0 34px">
       <div class="pg-h gold">🍽 COMIDAS</div>
-      <div id="comidas-w"></div>
+      <div id="com-wrap"></div>
     </div>
   </div>
 
-  <div class="page" id="p4" style="justify-content:flex-start;padding-top:50px">
+  <!-- P4: PASTOREO -->
+  <div class="page" id="p4" style="justify-content:flex-start;padding-top:48px">
     <div class="sz scroll" style="padding:0 34px">
       <div class="pg-h green">🏠 PASTOREO</div>
-      <div id="past-w"></div>
+      <div id="past-wrap"></div>
     </div>
   </div>
 
+  <!-- P5: CRONÓMETRO -->
   <div class="page" id="p5">
     <div class="sz">
       <div class="pg-h blue">⏱ CRONÓMETRO</div>
       <div class="t-disp" id="t-disp">00:00</div>
-      <div class="t-btns">
+      <div class="t-prog"><div class="t-prog-fill" id="t-prog-fill"></div></div>
+      <div class="t-btns" style="display:flex;gap:20px">
         <div class="tb tb-go" onclick="tStart()">▶</div>
-        <div class="tb tb-ps" onclick="tPause()">⏸</div>
         <div class="tb tb-rs" onclick="tReset()">↺</div>
       </div>
     </div>
@@ -153,102 +190,114 @@ body::after{
 <div class="nav-dots" id="nav-dots"></div>
 
 <script>
-// --- MOTOR DE SINCRONIZACIÓN ---
-const firebaseConfig = JSON.parse(__firebase_config);
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+/** * CONFIGURACIÓN DE TU ID DE GOOGLE
+ * Sustituye 'TU_ID_AQUÍ' por el código largo de tu hoja publicada.
+ */
+const GOOGLE_SHEET_ID = https://docs.google.com/spreadsheets/d/e/2PACX- 1vRTHpPQCtCgVg8MgrNs26yjOJpUXRrm2- AHLSA1EcrNlyt9wndaP3pfArpB3il5TiMyvmHnb9aPb4v1/pub? gid=0&single=true&output=csv; 
+const URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv`;
 
-let ST = {cong:null, visita:null, chks:{}};
-
-// Iniciar antena de datos (Regla 1 y 3)
-firebase.auth().signInAnonymously().then(() => {
-    db.collection('artifacts').doc(appId)
-      .collection('public').doc('data')
-      .collection('itinerario').doc('actual')
-      .onSnapshot((doc) => {
-          if (doc.exists) {
-              const remoteData = doc.data().data;
-              const dbClean = remoteData.data || remoteData;
-              
-              // Lógica de selección automática de la última congregación/visita
-              let bestC = dbClean.congregaciones[0];
-              let bestV = (bestC.visitas || [])[(bestC.visitas || []).length - 1];
-              
-              ST.cong = bestC;
-              ST.visita = bestV;
-              render();
-              document.getElementById('sync-status').innerText = "📡 ACTUALIZADO";
-              setTimeout(() => { document.getElementById('sync-status').innerText = "📡 SINCRONIZADO"; }, 2000);
-          }
-      });
-});
-
-function doc(id){return document.getElementById(id);}
-const PAGES=6; let cur=0;
-function buildDots(){
-  const c=doc('nav-dots');c.innerHTML='';
-  for(let i=0;i<PAGES;i++){
-    const d=document.createElement('div');
-    d.className='dot'+(i===0?' on':'');
-    d.onclick=()=>goTo(i);c.appendChild(d);
+async function fetchGoogle() {
+  if(GOOGLE_SHEET_ID === 'TU_ID_AQUÍ') return;
+  try {
+    const res = await fetch(URL);
+    const csv = await res.text();
+    let raw = csv.split('\n')[0];
+    if(raw.startsWith('"') && raw.endsWith('"')) {
+        raw = raw.substring(1, raw.length - 1).replace(/""/g, '"');
+    }
+    const data = JSON.parse(raw);
+    render(data);
+    document.getElementById('sync-tag').innerText = "SINCRO OK";
+    document.getElementById('sync-tag').style.color = "var(--green)";
+  } catch (e) {
+    document.getElementById('sync-tag').innerText = "ERROR DATOS";
+    document.getElementById('sync-tag').style.color = "var(--red)";
   }
 }
+
+function render(json) {
+    const d = json.data || json;
+    const cong = d.congregaciones[0];
+    const visit = (cong.visitas || []).slice(-1)[0];
+
+    // Home
+    document.getElementById('h-cong').innerText = cong.nombre;
+    document.getElementById('h-city').innerText = cong.ciudad || 'Circuito 360';
+    document.getElementById('s-eb').innerText = (visit.eb || [])[0] || '0';
+    document.getElementById('s-rp').innerText = (visit.rp || [])[0] || '0';
+    document.getElementById('s-cur').innerText = (visit.cursos || [])[0] || '0';
+    document.getElementById('s-pub').innerText = (visit.publicadores || [])[0] || '0';
+
+    // Agenda / Checklist
+    const agenda = document.getElementById('chk-wrap');
+    const items = [];
+    if(visit.reu_vm_dia) items.push("⚡ Reunión VMC: " + visit.reu_vm_hora);
+    if(visit.reu_rp_dia) items.push("🏛 Reunión Pública: " + visit.reu_rp_hora);
+    (visit.pastoreo || []).forEach(p => items.push("🏠 " + (p.familia || "Pastoreo")));
+    
+    agenda.innerHTML = items.map(t => `
+        <div class="chk" onclick="this.classList.toggle('done')">
+            <div class="chk-ring">✓</div>
+            <div class="chk-txt">${t}</div>
+        </div>
+    `).join('');
+
+    // Reuniones
+    document.getElementById('reu-wrap').innerHTML = `
+        <div class="rc purple"><div class="rc-ttl">⚡ VMC</div><div class="rc-row"><span class="rc-nm">${visit.reu_vm_dia||'—'}</span><span class="rc-hr">${visit.reu_vm_hora||'—'}</span></div></div>
+        <div class="rc blue"><div class="rc-ttl">🏛 PUBLICA</div><div class="rc-row"><span class="rc-nm">${visit.reu_rp_dia||'—'}</span><span class="rc-hr">${visit.reu_rp_hora||'—'}</span></div></div>
+    `;
+
+    // Comidas
+    const com = document.getElementById('com-wrap');
+    const comItems = (visit.comidas || []).map(c => `
+        <div class="rc gold"><div class="rc-ttl">${c.tipo||'COMIDA'}</div><div class="rc-row"><span class="rc-nm">${c.familia||'Hnos'}</span><span class="rc-hr">${c.hora||''}</span></div></div>
+    `).join('');
+    com.innerHTML = comItems || '<p style="font-size:10px;color:var(--dim);text-align:center">Sin datos de comidas</p>';
+
+    // Pastoreo
+    const past = document.getElementById('past-wrap');
+    const pastItems = (visit.pastoreo || []).map(p => `
+        <div class="rc"><div class="rc-ttl">🏠 VISITA</div><div class="rc-row"><span class="rc-nm">${p.familia}</span><span class="rc-hr">${p.hora||''}</span></div></div>
+    `).join('');
+    past.innerHTML = pastItems || '<p style="font-size:10px;color:var(--dim);text-align:center">Sin datos de pastoreo</p>';
+}
+
+// Navegación Carrusel
+let cur = 0; const PAGES = 6;
+function buildDots(){
+    const c=document.getElementById('nav-dots'); c.innerHTML='';
+    for(let i=0;i<PAGES;i++){
+        const d=document.createElement('div');
+        d.className='dot'+(i===0?' on':'');
+        c.appendChild(d);
+    }
+}
 function goTo(n){
-  cur=n;
-  doc('car').style.transform=`translateX(-${cur*(100/PAGES)}%)`;
-  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+    cur = n;
+    document.getElementById('car').style.transform = `translateX(-${cur*(100/6)}%)`;
+    document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i === cur));
 }
 buildDots();
 
-// Navegación
-let _sx=0;
-document.body.addEventListener('touchstart',e=>{_sx=e.touches[0].clientX;},{passive:true});
-document.body.addEventListener('touchend',e=>{
-  const dx=e.changedTouches[0].clientX-_sx;
-  if(dx<-44&&cur<PAGES-1)goTo(cur+1);
-  else if(dx>44&&cur>0)goTo(cur-1);
-},{passive:true});
+document.body.addEventListener('click', (e) => {
+    if(e.target.tagName === 'BUTTON' || e.target.closest('.chk')) return;
+    cur = (cur + 1) % PAGES;
+    goTo(cur);
+});
 
-// Renderizado original adaptado
-function render(){
-  if(!ST.cong || !ST.visita) return;
-  const c=ST.cong, v=ST.visita;
-
-  doc('h-cong').textContent=c.nombre;
-  doc('h-city').textContent=c.ciudad||'—';
-  doc('s-eb').textContent = (v.eb || []).length ? v.eb[0] : '—';
-  doc('s-rp').textContent = (v.rp || []).length ? v.rp[0] : '—';
-
-  // Checklist
-  const items = [];
-  if(v.pastoreo) v.pastoreo.forEach((p,i) => items.push({id:'p'+i, t: '🏠 '+(p.familia||'Pastoreo')}));
-  if(v.reu_vm_dia) items.push({id:'vm', t: '⚡ Reunión VMC'});
-  
-  doc('chk-wrap').innerHTML = items.map(it => `
-    <div class="chk" onclick="this.classList.toggle('done')">
-      <div class="chk-ring">✓</div>
-      <div class="chk-txt">${it.t}</div>
-    </div>
-  `).join('');
-
-  // Reuniones
-  doc('vm-d').textContent=v.reu_vm_dia||'—';
-  doc('vm-h').textContent=v.reu_vm_hora||'—';
-  doc('rp-d').textContent=v.reu_rp_dia||'—';
-  doc('rp-h').textContent=v.reu_rp_hora||'—';
-}
-
-// Cronómetro (Tu lógica original)
+// Cronómetro Maestro
 let _run=false,_ts=0,_pms=0,_iv=null;
 function tStart(){ if(_run)return; _run=true; _ts=Date.now()-_pms; _iv=setInterval(tTick,500); }
-function tPause(){ if(!_run)return; _run=false; clearInterval(_iv); _pms=Date.now()-_ts; }
-function tReset(){ _run=false; clearInterval(_iv); _ts=0;_pms=0; doc('t-disp').textContent='00:00'; }
+function tReset(){ _run=false; clearInterval(_iv); _ts=0;_pms=0; document.getElementById('t-disp').textContent='00:00'; document.getElementById('t-prog-fill').style.width='0%'; }
 function tTick(){
-  const ms=Date.now()-_ts; const s=Math.floor(ms/1000);
-  const m=Math.floor(s/60),ss=s%60;
-  doc('t-disp').textContent=(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
+    const ms=Date.now()-_ts; const s=Math.floor(ms/1000);
+    const m=Math.floor(s/60),ss=s%60;
+    document.getElementById('t-disp').textContent=(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
+    document.getElementById('t-prog-fill').style.width=Math.min((s/(30*60))*100, 100)+'%';
 }
+
+fetchGoogle();
 </script>
 </body>
 </html>
